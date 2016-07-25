@@ -1,14 +1,21 @@
 package io.github.sunsetsucks.iogame;
 
+import android.opengl.GLSurfaceView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import io.github.sunsetsucks.iogame.view.IOGameGLSurfaceView;
+
 public class MainActivity extends AppCompatActivity
 {
+    private IOGameGLSurfaceView glView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        glView = new IOGameGLSurfaceView(this);
+        setContentView(glView);
     }
 }
