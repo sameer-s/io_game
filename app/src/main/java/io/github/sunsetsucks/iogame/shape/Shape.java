@@ -79,7 +79,8 @@ public abstract class Shape
         GLES20.glUniform4fv(colorHandle, 1, getColor(), 0);
 
         // draw shape
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount);
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, getDrawOrder().length,
+                GLES20.GL_UNSIGNED_SHORT, drawListBuffer);
 
         // disables our access to the vertex array
         GLES20.glDisableVertexAttribArray(positionHandle);
