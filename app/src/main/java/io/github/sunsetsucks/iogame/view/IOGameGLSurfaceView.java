@@ -1,5 +1,6 @@
 package io.github.sunsetsucks.iogame.view;
 
+
 import android.content.Context;
 import android.graphics.Point;
 import android.opengl.GLES20;
@@ -12,12 +13,12 @@ import android.view.WindowManager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import io.github.sunsetsucks.iogame.shape.Color;
+import io.github.sunsetsucks.iogame.shape.GameObject;
 import io.github.sunsetsucks.iogame.shape.Shape;
 import io.github.sunsetsucks.iogame.shape.Square;
 
@@ -64,20 +65,20 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         display.getSize(size);
         int screenWidth = size.x, screenHeight = size.y;
 
-        float x = (xScreen / screenWidth) * 2.0f - 1.0f;
+        float x = (xScreen / screenWidth) * -2.0f + 1.0f;
         float y = (yScreen / screenHeight) * -2.0f + 1.0f;
 
-        renderer.shapesToDraw.get(0).translationX = x;
-        renderer.shapesToDraw.get(0).translationY = y;
+        renderer.toDraw.get(0).translationX = -x;
+        renderer.toDraw.get(0).translationY = -y;
 
-        renderer.shapesToDraw.get(0).rotation += 1;
+        renderer.toDraw.get(0).rotation += 1;
 
         return true;
     }
 
     public static class Renderer implements GLSurfaceView.Renderer
     {
-        private List<Shape> shapesToDraw = new ArrayList<>();
+        private List<GameObject> toDraw = new ArrayList<>();
 
         private final float[] mvpMatrix        = new float[16], // model view projection
                               projectionMatrix = new float[16],
@@ -89,7 +90,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             GLES20.glClearColor(color[0], color[1], color[2], color[3]);
 
 //            shapesToDraw.add(((Shape) new Square().setState(45f, .5f, -.25f, 1f, 1f)).setColor(Color.GLAUCOUS));
-            shapesToDraw.add(((Shape) new Square().setState(0f, .5f, .25f, 1f, 1f)).setColor(Color.GLAUCOUS));
+            toDraw.add(((Shape) new Square().setState(0f, .5f, .25f, 1f, 1f)).setColor(Color.GLAUCOUS));
         }
 
         public void onDrawFrame(GL10 unused)
@@ -99,7 +100,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             Matrix.setLookAtM(viewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
             Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
-            for(Shape s : shapesToDraw) s.draw(mvpMatrix);
+            for(GameObject go : toDraw) go.draw(mvpMatrix);
         }
 
         public void onSurfaceChanged(GL10 unused, int width, int height)

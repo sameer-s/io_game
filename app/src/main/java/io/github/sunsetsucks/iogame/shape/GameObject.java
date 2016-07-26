@@ -43,4 +43,6 @@ public abstract class GameObject
 
         return movementMatrix;
     }
+
+    public abstract void draw(float[] mvpMatrix);
 }

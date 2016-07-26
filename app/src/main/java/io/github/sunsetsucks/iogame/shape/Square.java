@@ -21,12 +21,6 @@ public class Square extends Shape
     @Override
     public short[] getDrawOrder()
     {
-        // 023
-        // 320
-        // 230
-        // 032
-        // 302
-        // 203
         return new short[] { 0, 1, 2, 0, 2, 3 };
     }
 }

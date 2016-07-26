@@ -17,4 +17,10 @@ public class MainActivity extends AppCompatActivity
         glView = new IOGameGLSurfaceView(this);
         setContentView(glView);
     }
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+    }
 }
