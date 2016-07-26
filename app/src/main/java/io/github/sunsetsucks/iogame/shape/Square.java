@@ -19,12 +19,6 @@ public class Square extends Shape
     }
 
     @Override
-    public float[] getColor()
-    {
-        return Color.RED;
-    }
-
-    @Override
     public short[] getDrawOrder()
     {
         // 023

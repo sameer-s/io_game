@@ -1,6 +1,5 @@
 package io.github.sunsetsucks.iogame;
 
-import android.opengl.GLSurfaceView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
