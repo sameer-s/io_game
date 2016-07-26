@@ -58,7 +58,6 @@ public class IOGameGLSurfaceView extends GLSurfaceView
     {
         float xScreen = e.getX();
         float yScreen = e.getY();
-
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point size = new Point();
