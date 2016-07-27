@@ -1,0 +1,52 @@
+[33mcommit a21098407fa086bb07fb1612f274024fbf768c0f[m
+Author: Elaine Yang <elaineyangx.gmail.com>
+Date:   Tue Jul 26 09:27:10 2016 -0700
+
+    xml wifi thing
+
+[33mcommit 5618ece0cdfa6b4f5f8e67ffc9f2f14b6489b296[m
+Author: Sameer Suri <sameer.suri0@gmail.com>
+Date:   Mon Jul 25 14:48:34 2016 -0700
+
+    SQUARE
+    
+    Signed-off-by: Sameer Suri <sameer.suri0@gmail.com>
+
+[33mcommit 9913851facd24165cc21e40fb7330154d4388498[m
+Author: Sameer Suri <sameer.suri0@gmail.com>
+Date:   Mon Jul 25 14:35:49 2016 -0700
+
+    Added GL surface view and triangle (which is supposed to be a square)
+    
+    Signed-off-by: Sameer Suri <sameer.suri0@gmail.com>
+
+[33mcommit de3425cdbe939000b3a19af5e656f735a17422a5[m
+Merge: 8d554e3 48c5550
+Author: Elaine Yang <elaineyangx.gmail.com>
+Date:   Mon Jul 25 11:59:38 2016 -0700
+
+    Merge branch 'master' of https://github.com/sunsetsucks/IOGame
+
+[33mcommit 8d554e30e3fa55082a93732eff49126581f063c1[m
+Author: Sameer Suri <sameer.suri0@gmail.com>
+Date:   Mon Jul 25 11:24:49 2016 -0700
+
+    Code style
+    
+    Signed-off-by: Sameer Suri <sameer.suri0@gmail.com>
+
+[33mcommit 48c5550268fa8b995832571a9c2d7ac08c5f56c2[m
+Author: Sameer Suri <sameer.suri0@gmail.com>
+Date:   Mon Jul 25 11:24:49 2016 -0700
+
+    Code style
+    
+    Signed-off-by: Sameer Suri <sameer.suri0@gmail.com>
+
+[33mcommit 5b302e88a30dcd2e0f5b2058bd36c61744464d22[m
+Author: Sameer Suri <sameer.suri0@gmail.com>
+Date:   Mon Jul 25 11:17:28 2016 -0700
+
+    Android initialization
+    
+    Signed-off-by: Sameer Suri <sameer.suri0@gmail.com>
