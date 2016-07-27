@@ -67,8 +67,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         float x = (xScreen / screenWidth) * -2.0f + 1.0f;
         float y = (yScreen / screenHeight) * -2.0f + 1.0f;
 
-        renderer.toDraw.get(0).translationX = -x;
-        renderer.toDraw.get(0).translationY = -y;
+        renderer.toDraw.get(0).translationX = x;
+        renderer.toDraw.get(0).translationY = y;
 
         renderer.toDraw.get(0).rotation += 1;
 
