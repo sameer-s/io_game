@@ -40,13 +40,23 @@ import static io.github.sunsetsucks.iogame.Util.toast;
 
 public class GameConnection
 {
-    static final String SERVICE_TYPE = "_http._tcp.";
-
+    private static final String SERVICE_TYPE = "_http._tcp.";
     private Selector selector;
 
     private Handler handler;
 
     private final String name = UUID.randomUUID().toString();
+
+    private ServerSocket ss = null;
+    private final ByteBuffer buffer = ByteBuffer.allocate(16384); // buffer for reading
+    private List<String> messages = new LinkedList<>();
+    private SparseIntArray messageLocations = new SparseIntArray();
+    private int currentId = 0;
+    private int port = 0;
+
+    String serviceName = "IO_Style_Game";
+    private NsdManager nsdManager = null;
+    private NsdManager.RegistrationListener registrationListener;
 
     public GameConnection(Handler handler)
     {
@@ -54,34 +64,30 @@ public class GameConnection
 
         try
         {
-            registerService();
             initNetwork();
+            registerService();
         } catch (IOException e)
         {
-            toast("We were unable to set up the network because of an exception: %s.", e.getClass().getName());
-        }
-
-        try
-        {
-            runServer();
-        } catch (IOException e)
-        {
-            toast("An error (%s) occurred while handling network input.", e.getClass().getName());
+            Log.d("networking", "We were unable to set up the network because of an exception: " + e.getClass().getName());
         }
     }
-
-    private ServerSocket ss = null;
-    private final ByteBuffer buffer = ByteBuffer.allocate(16384); // buffer for reading
-    private List<String> messages = new LinkedList<>();
-    private SparseIntArray messageLocations = new SparseIntArray();
 
     private void openChannel(InetSocketAddress address) throws IOException
     {
         SocketChannel sc = SocketChannel.open();
+        Log.d("connection", sc.socket().getLocalAddress() == null ? "!!NULL!!" : sc.socket().getLocalAddress().toString());
         sc.connect(address);
         sc.configureBlocking(false);
 
         sc.register(selector, SelectionKey.OP_CONNECT);
+    }
+
+    public synchronized void closeAllChannels() throws IOException
+    {
+        for(SelectionKey key : selector.keys())
+        {
+            key.channel().close();
+        }
     }
 
     public void sendMessage(String s)
@@ -96,20 +102,23 @@ public class GameConnection
         messages.add(s);
     }
 
-    String serviceName = "IO_Style_Game";
+    public void deregisterService()
+    {
+        nsdManager.unregisterService(registrationListener);
+    }
 
-    public void registerService()
+    private void registerService()
     {
         NsdServiceInfo serviceInfo = new NsdServiceInfo();
 
 
         serviceInfo.setServiceName(serviceName);
         serviceInfo.setServiceType("_http._tcp.");
-        serviceInfo.setPort(0);
+        serviceInfo.setPort(port);
 
-        final NsdManager nsdManager = (NsdManager) Util.context.getSystemService(Context.NSD_SERVICE);
+        nsdManager = (NsdManager) Util.context.getSystemService(Context.NSD_SERVICE);
 
-        nsdManager.registerService(serviceInfo, NsdManager.PROTOCOL_DNS_SD, new NsdManager.RegistrationListener()
+        registrationListener = new NsdManager.RegistrationListener()
         {
             @Override
             public void onServiceRegistered(NsdServiceInfo serviceInfo)
@@ -138,8 +147,13 @@ public class GameConnection
             {
                 // Unregistration failed.  Put debugging code here to determine why.
             }
-        });
+        };
 
+        nsdManager.registerService(serviceInfo, NsdManager.PROTOCOL_DNS_SD, registrationListener);
+    }
+
+    public void discoverServices()
+    {
         nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, new NsdManager.DiscoveryListener()
         {
 
@@ -147,21 +161,19 @@ public class GameConnection
             @Override
             public void onDiscoveryStarted(String regType)
             {
-                toast("Service discovery started");
             }
 
             @Override
             public void onServiceFound(final NsdServiceInfo service)
             {
                 // A service was found!  Do something with it.
-                toast("Service discovery success" + service);
                 if (!service.getServiceType().equals(SERVICE_TYPE))
                 {
-                    toast("Unknown Service Type: " + service.getServiceType());
+                    Log.d("networking", "Unknown Service Type: " + service.getServiceType());
                 } else if (service.getServiceName().equals(serviceName))
                 {
-                    toast("Same machine: " + serviceName);
-                } else if (service.getServiceName().contains("NsdChat"))
+                    Log.d("networking", "Same machine: " + serviceName);
+                } else if (service.getServiceName().contains(serviceName))
                 {
                     nsdManager.resolveService(service, new NsdManager.ResolveListener()
                     {
@@ -169,21 +181,27 @@ public class GameConnection
                         @Override
                         public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode)
                         {
-                            toast("Resolve failed" + errorCode);
+                            Log.d("networking", "Resolve failed" + errorCode);
                         }
 
                         @Override
                         public void onServiceResolved(NsdServiceInfo serviceInfo)
                         {
-                            toast("Resolve Succeeded. " + serviceInfo);
+                            Log.d("networking", "Resolve Succeeded. " + serviceInfo);
+
+                            int port = serviceInfo.getPort();
+                            InetAddress host = serviceInfo.getHost();
 
                             if (serviceInfo.getServiceName().equals(serviceName))
                             {
                                 Log.d("Connection", "Same IP.");
                                 return;
                             }
-                            int port = serviceInfo.getPort();
-                            InetAddress host = serviceInfo.getHost();
+                            else
+                            {
+                                Log.d("Connection", String.format("Other IP: %s:%s, name: %s (I am %s)",
+                                        host, port, serviceInfo.getServiceName(), serviceName));
+                            }
 
                             try
                             {
@@ -191,7 +209,8 @@ public class GameConnection
                             }
                             catch (IOException e)
                             {
-                                toast("Unable to open channel due to %s", e.getClass().getName());
+                                Log.d("networking", "Unable to open channel due to " + e.getClass().getName());
+                                throw new RuntimeException(e);
                             }
                         }
                     });
@@ -201,31 +220,30 @@ public class GameConnection
             @Override
             public void onServiceLost(NsdServiceInfo service)
             {
-                toast("service lost" + service);
+                Log.d("networking", "service lost" + service);
             }
 
             @Override
             public void onDiscoveryStopped(String serviceType)
             {
-                toast("Discovery stopped: " + serviceType);
+                Log.d("networking", "Discovery stopped: " + serviceType);
             }
 
             @Override
             public void onStartDiscoveryFailed(String serviceType, int errorCode)
             {
-                toast("Discovery failed: Error code:" + errorCode);
+                Log.d("networking", "Discovery failed: Error code:" + errorCode);
                 nsdManager.stopServiceDiscovery(this);
             }
 
             @Override
             public void onStopDiscoveryFailed(String serviceType, int errorCode)
             {
-                toast("Discovery failed: Error code:" + errorCode);
+                Log.d("networking", "Discovery failed: Error code:" + errorCode);
                 nsdManager.stopServiceDiscovery(this);
             }
         });
     }
-
 
     private void initNetwork() throws IOException
     {
@@ -234,11 +252,23 @@ public class GameConnection
         ServerSocketChannel ssc = ServerSocketChannel.open();
         ssc.configureBlocking(false);
 
-        ServerSocket ss = ssc.socket();
+        ss = ssc.socket();
         InetSocketAddress isa = new InetSocketAddress(0);
         ss.bind(isa);
+        port = ss.getLocalPort();
 
         ssc.register(selector, SelectionKey.OP_ACCEPT);
+    }
+
+    public void runServerLoop()
+    {
+        try
+        {
+            runServer();
+        } catch (IOException e)
+        {
+            Log.d("networking", String.format("An error (%s) occurred while handling network input.", e.getClass().getName()));
+        }
     }
 
     private void runServer() throws IOException
@@ -260,6 +290,7 @@ public class GameConnection
 
                     SocketChannel sc = s.getChannel();
                     sc.configureBlocking(false);
+
 
                     sc.register(selector, SelectionKey.OP_READ);
                 } else if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ)
@@ -289,7 +320,7 @@ public class GameConnection
 
                         Bundle bundle = new Bundle();
                         if (key.attachment() != null)
-                            bundle.putString("attachment", key.attachment().toString());
+                            bundle.putParcelable("attachment", (ChannelAttachment) key.attachment());
                         bundle.putString("data", sb.toString());
 
                         Message message = new Message();
@@ -300,7 +331,7 @@ public class GameConnection
 //                        toast("[%s]: %s", key.attachment(), sb);
                     } catch (IOException e)
                     {
-                        toast("Unable to read data from network due to %s.", e.getClass().getName());
+                        Log.d("networking", "Unable to read data from network due to " +  e.getClass().getName());
                     } finally
                     {
                         if (sc != null && sc.isOpen())
@@ -314,6 +345,9 @@ public class GameConnection
                     if (sc.finishConnect())
                     {
                         key.interestOps(0);
+                        ChannelAttachment attachment = new ChannelAttachment();
+                        attachment.name = name;
+                        attachment.id = currentId++;
                         key.attach(name);
                     }
                 } else if ((key.readyOps() & SelectionKey.OP_WRITE) == SelectionKey.OP_WRITE)

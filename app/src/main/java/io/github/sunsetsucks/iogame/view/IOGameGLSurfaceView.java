@@ -70,9 +70,14 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         renderer.toDraw.get(0).translationX = x;
         renderer.toDraw.get(0).translationY = y;
 
-        renderer.toDraw.get(0).rotation += 1;
-
         return true;
+    }
+
+    // format x,y
+    public void setShapeZeroX_Y(String in)
+    {
+        renderer.toDraw.get(0).translationX = Integer.parseInt(in.split(",")[0]);
+        renderer.toDraw.get(0).translationY = Integer.parseInt(in.split(",")[1]);
     }
 
     public static class Renderer implements GLSurfaceView.Renderer
