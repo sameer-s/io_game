@@ -23,13 +23,19 @@ import io.github.sunsetsucks.iogame.shape.Shape;
 import io.github.sunsetsucks.iogame.shape.Square;
 
 /**
- * Created by ssuri on 7/25/16.
+ *
  *
  */
 public class IOGameGLSurfaceView extends GLSurfaceView
 {
     private Renderer renderer;
     private Context context;
+
+    public static int currentX = 500;
+    public static int currentY = 500;
+    public static int speed = 5;
+    public static int ScreenW = 2000;
+    public static int ScreenH = 1500;
 
     public IOGameGLSurfaceView(Context context)
     {
@@ -67,11 +73,19 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         float x = (xScreen / screenWidth) * -2.0f + 1.0f;
         float y = (yScreen / screenHeight) * -2.0f + 1.0f;
 
-        renderer.toDraw.get(0).translationX = x;
-        renderer.toDraw.get(0).translationY = y;
+        currentX = currentX + (int)(y*speed);
+        currentY = currentY + (int)(x*speed);
 
-        renderer.toDraw.get(0).rotation += 1;
+        if(currentX <= 0) currentX=0;
+        else if(currentX >= ScreenW) currentX=ScreenW;
+        else if(currentY <=0) currentY=0;
+        else if (currentY >= ScreenH) currentY = ScreenH;
+        else {
+            renderer.toDraw.get(0).translationX = x;
+            renderer.toDraw.get(0).translationY = y;
 
+            renderer.toDraw.get(0).rotation += 2;
+        }
         return true;
     }
 
