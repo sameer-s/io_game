@@ -15,6 +15,8 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
 
+        Util.context = this;
+
         glView = new IOGameGLSurfaceView(this);
         setContentView(glView);
     }
@@ -30,7 +32,8 @@ public class MainActivity extends AppCompatActivity
     public void onWindowFocusChanged(boolean hasFocus)
     {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus && glView.getVisibility() == View.GONE) {
+        if (hasFocus && glView.getVisibility() == View.GONE)
+        {
             glView.setVisibility(View.VISIBLE);
         }
     }
