@@ -1,35 +1,41 @@
-package io.github.sunsetsucks.iogame.view;
+        package io.github.sunsetsucks.iogame.view;
 
 
-import android.content.Context;
-import android.graphics.Point;
-import android.opengl.GLES20;
-import android.opengl.GLSurfaceView;
-import android.opengl.Matrix;
-import android.util.AttributeSet;
-import android.view.Display;
-import android.view.MotionEvent;
-import android.view.WindowManager;
+        import android.content.Context;
+        import android.graphics.Point;
+        import android.opengl.GLES20;
+        import android.opengl.GLSurfaceView;
+        import android.opengl.Matrix;
+        import android.util.AttributeSet;
+        import android.view.Display;
+        import android.view.MotionEvent;
+        import android.view.WindowManager;
 
-import java.util.ArrayList;
-import java.util.List;
+        import java.util.ArrayList;
+        import java.util.List;
 
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
+        import javax.microedition.khronos.egl.EGLConfig;
+        import javax.microedition.khronos.opengles.GL10;
 
-import io.github.sunsetsucks.iogame.shape.Color;
-import io.github.sunsetsucks.iogame.shape.GameObject;
-import io.github.sunsetsucks.iogame.shape.Shape;
-import io.github.sunsetsucks.iogame.shape.Square;
+        import io.github.sunsetsucks.iogame.shape.Color;
+        import io.github.sunsetsucks.iogame.shape.GameObject;
+        import io.github.sunsetsucks.iogame.shape.Shape;
+        import io.github.sunsetsucks.iogame.shape.Square;
 
 /**
- * Created by ssuri on 7/25/16.
+ *
  *
  */
 public class IOGameGLSurfaceView extends GLSurfaceView
 {
     private Renderer renderer;
     private Context context;
+
+    public static int currentX = 500;
+    public static int currentY = 500;
+    public static int speed = 5;
+    public static int ScreenW = 2000;
+    public static int ScreenH = 1500;
 
     public IOGameGLSurfaceView(Context context)
     {
@@ -67,11 +73,22 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         float x = (xScreen / screenWidth) * -2.0f + 1.0f;
         float y = (yScreen / screenHeight) * -2.0f + 1.0f;
 
-        renderer.toDraw.get(0).translationX = x;
-        renderer.toDraw.get(0).translationY = y;
+        System.out.println("x: "+ x);
+        System.out.println("y: "+ y);
 
-        renderer.toDraw.get(0).rotation += 1;
+        currentX = currentX + (int)(y*speed);
+        currentY = currentY + (int)(x*speed);
 
+        if(currentX <= 0) currentX=0;
+        else if(currentX >= ScreenW) currentX=ScreenW;
+        else if(currentY <=0) currentY=0;
+        else if (currentY >= ScreenH) currentY = ScreenH;
+        else {
+            renderer.toDraw.get(0).translationX = x;
+            renderer.toDraw.get(0).translationY = y;
+            //renderer.toDraw.get(0).rotation += 2;
+        }
+        //  System.out.println("("+currentX+","+currentY+")");
         return true;
     }
 
@@ -80,8 +97,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         private List<GameObject> toDraw = new ArrayList<>();
 
         private final float[] mvpMatrix        = new float[16], // model view projection
-                              projectionMatrix = new float[16],
-                              viewMatrix       = new float[16];
+                projectionMatrix = new float[16],
+                viewMatrix       = new float[16];
 
         public void onSurfaceCreated(GL10 unused, EGLConfig config)
         {
