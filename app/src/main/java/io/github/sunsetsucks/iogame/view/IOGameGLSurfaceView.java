@@ -73,6 +73,9 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         float x = (xScreen / screenWidth) * -2.0f + 1.0f;
         float y = (yScreen / screenHeight) * -2.0f + 1.0f;
 
+        System.out.println("x: "+ x);
+        System.out.println("y: "+ y);
+
         currentX = currentX + (int)(y*speed);
         currentY = currentY + (int)(x*speed);
 
@@ -83,9 +86,9 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         else {
             renderer.toDraw.get(0).translationX = x;
             renderer.toDraw.get(0).translationY = y;
-
-            renderer.toDraw.get(0).rotation += 2;
+            //renderer.toDraw.get(0).rotation += 2;
         }
+      //  System.out.println("("+currentX+","+currentY+")");
         return true;
     }
 
