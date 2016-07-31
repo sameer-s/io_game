@@ -80,7 +80,6 @@ public class IOGameGLSurfaceView extends GLSurfaceView
                 viewMatrix = new float[16];
 
         public void onSurfaceCreated(GL10 unused, EGLConfig config) {
-            System.out.println("went into onsurfacecreated");
             float[] color = Color.SARCOLINE;
             GLES20.glClearColor(color[0], color[1], color[2], color[3]);
 
@@ -133,7 +132,6 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
         public static int loadShader(int type, String shaderCode)
         {
-            System.out.println("started loading shader");
             int shader = GLES20.glCreateShader(type);
 
             GLES20.glShaderSource(shader, shaderCode);
