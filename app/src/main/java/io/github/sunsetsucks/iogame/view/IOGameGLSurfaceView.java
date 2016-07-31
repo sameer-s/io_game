@@ -1,6 +1,5 @@
 package io.github.sunsetsucks.iogame.view;
 
-
 import android.content.Context;
 import android.graphics.Point;
 import android.opengl.GLES20;
@@ -31,8 +30,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
     private Renderer renderer;
     private Context context;
 
-    public IOGameGLSurfaceView(Context context)
-    {
+    public IOGameGLSurfaceView(Context context) {
         super(context);
 
         this.context = context;
@@ -48,8 +46,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 //        setRenderMode(RENDERMODE_WHEN_DIRTY);
     }
 
-    public IOGameGLSurfaceView(Context context, AttributeSet attrs)
-    {
+    public IOGameGLSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
@@ -75,21 +72,43 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         return true;
     }
 
-    public static class Renderer implements GLSurfaceView.Renderer
-    {
+    public static class Renderer implements GLSurfaceView.Renderer {
         private List<GameObject> toDraw = new ArrayList<>();
 
-        private final float[] mvpMatrix        = new float[16], // model view projection
-                              projectionMatrix = new float[16],
-                              viewMatrix       = new float[16];
+        private final float[] mvpMatrix = new float[16], // model view projection
+                projectionMatrix = new float[16],
+                viewMatrix = new float[16];
 
-        public void onSurfaceCreated(GL10 unused, EGLConfig config)
-        {
+        public void onSurfaceCreated(GL10 unused, EGLConfig config) {
+            System.out.println("went into onsurfacecreated");
             float[] color = Color.SARCOLINE;
             GLES20.glClearColor(color[0], color[1], color[2], color[3]);
 
 //            shapesToDraw.add(((Shape) new Square().setState(45f, .5f, -.25f, 1f, 1f)).setColor(Color.GLAUCOUS));
-            toDraw.add(((Shape) new Square().setState(0f, .5f, .25f, 1f, 1f)).setColor(Color.GLAUCOUS));
+            toDraw.add(((Shape) new Square().setState(0f, 0f, 0f, 0.75f, 0.75f)).setColor(Color.GLAUCOUS));
+            generateObject();
+
+        }
+
+        public void generateObject() {
+            float x;
+            float y;
+            x = (float) Math.random();
+            if(randomSign())
+                x = x * -1.0f;
+            y = (float) Math.random();
+            if(randomSign())
+                y = y * -1.0f;
+            toDraw.add(((Shape) new Square().setState(0f, x, y, 0.25f, 0.25f)).setColor(Color.COQUELICOT));
+        }
+
+        private boolean randomSign()
+        {
+            double sign = Math.random();
+            if(sign <= 0.5)
+                return true;
+            else
+                return false;
         }
 
         public void onDrawFrame(GL10 unused)
@@ -114,6 +133,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
         public static int loadShader(int type, String shaderCode)
         {
+            System.out.println("started loading shader");
             int shader = GLES20.glCreateShader(type);
 
             GLES20.glShaderSource(shader, shaderCode);
