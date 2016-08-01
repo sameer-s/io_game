@@ -1,11 +1,16 @@
 package io.github.sunsetsucks.iogame.network;
 
+import android.app.Activity;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.util.SparseIntArray;
 
@@ -30,12 +35,11 @@ import static io.github.sunsetsucks.iogame.Util.toast;
 
 /**
  * Created by Sameer on 2016-07-27.
- *
+ * <p>
  * Notes/links:
  * https://developer.android.com/training/connect-devices-wirelessly/nsd.html
  * http://www.javaworld.com/article/2073344/core-java/use-select-for-high-speed-networking.html
  * http://tutorials.jenkov.com/java-nio/selectors.html
- *
  */
 
 public class GameConnection
@@ -57,6 +61,10 @@ public class GameConnection
     String serviceName = "IO_Style_Game";
     private NsdManager nsdManager = null;
     private NsdManager.RegistrationListener registrationListener;
+    private NsdManager.DiscoveryListener discoveryListener;
+    private WifiManager wifiManager = null;
+
+    private boolean registered = false;
 
     public GameConnection(Handler handler)
     {
@@ -75,7 +83,6 @@ public class GameConnection
     private void openChannel(InetSocketAddress address) throws IOException
     {
         SocketChannel sc = SocketChannel.open();
-        Log.d("connection", sc.socket().getLocalAddress() == null ? "!!NULL!!" : sc.socket().getLocalAddress().toString());
         sc.connect(address);
         sc.configureBlocking(false);
 
@@ -84,7 +91,7 @@ public class GameConnection
 
     public synchronized void closeAllChannels() throws IOException
     {
-        for(SelectionKey key : selector.keys())
+        for (SelectionKey key : selector.keys())
         {
             key.channel().close();
         }
@@ -96,7 +103,7 @@ public class GameConnection
         {
             if (key.attachment() instanceof ChannelAttachment && ((ChannelAttachment) key.attachment()).name.equals(name))
             {
-                key.interestOps(SelectionKey.OP_WRITE);
+                key.interestOps(SelectionKey.OP_READ & SelectionKey.OP_WRITE);
             }
         }
         messages.add(s);
@@ -105,19 +112,17 @@ public class GameConnection
     public void deregisterService()
     {
         nsdManager.unregisterService(registrationListener);
+        nsdManager.stopServiceDiscovery(discoveryListener);
     }
 
     private void registerService()
     {
         NsdServiceInfo serviceInfo = new NsdServiceInfo();
-
-
         serviceInfo.setServiceName(serviceName);
         serviceInfo.setServiceType("_http._tcp.");
         serviceInfo.setPort(port);
-
         nsdManager = (NsdManager) Util.context.getSystemService(Context.NSD_SERVICE);
-
+        wifiManager = (WifiManager) Util.context.getSystemService(Context.WIFI_SERVICE);
         registrationListener = new NsdManager.RegistrationListener()
         {
             @Override
@@ -127,6 +132,10 @@ public class GameConnection
                 // resolve a conflict, so update the name you initially requested
                 // with the name Android actually used.
                 serviceName = serviceInfo.getServiceName();
+
+                if (registered) discoverServices();
+
+                registered = true;
             }
 
             @Override
@@ -154,7 +163,7 @@ public class GameConnection
 
     public void discoverServices()
     {
-        nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, new NsdManager.DiscoveryListener()
+        discoveryListener = new NsdManager.DiscoveryListener()
         {
 
             //  Called as soon as service discovery begins.
@@ -172,8 +181,9 @@ public class GameConnection
                     Log.d("networking", "Unknown Service Type: " + service.getServiceType());
                 } else if (service.getServiceName().equals(serviceName))
                 {
-                    Log.d("networking", "Same machine: " + serviceName);
-                } else if (service.getServiceName().contains(serviceName))
+//                    Log.d("networking", "Same machine: " + serviceName);
+                } /*else*/
+                if (service.getServiceName().contains(serviceName))
                 {
                     nsdManager.resolveService(service, new NsdManager.ResolveListener()
                     {
@@ -187,27 +197,40 @@ public class GameConnection
                         @Override
                         public void onServiceResolved(NsdServiceInfo serviceInfo)
                         {
-                            Log.d("networking", "Resolve Succeeded. " + serviceInfo);
+//                            Log.d("networking", "Resolve Succeeded. " + serviceInfo);
 
                             int port = serviceInfo.getPort();
                             InetAddress host = serviceInfo.getHost();
 
-                            if (serviceInfo.getServiceName().equals(serviceName))
+//                            Log.d("Connection", String.format("IP: %s:%s, name: %s (I am %s)", host, port, serviceInfo.getServiceName(), serviceName));
+
+                            ConnectivityManager cm = (ConnectivityManager) Util.context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                            NetworkInfo ni = cm.getActiveNetworkInfo();
+                            if (ni == null || ni.getType() != ConnectivityManager.TYPE_WIFI)
                             {
-                                Log.d("Connection", "Same IP.");
+                                toast("You must be using WiFi for this app to work!");
+                                ((Activity) Util.context).finish();
                                 return;
                             }
-                            else
+
+                            //noinspection deprecation
+                            String ip = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
+
+                            if (host.toString().equals("127.0.0.1") ||
+                                    host.toString().equals("0.0.0.0") ||
+                                    host.toString().equals("/" + ip))
                             {
-                                Log.d("Connection", String.format("Other IP: %s:%s, name: %s (I am %s)",
-                                        host, port, serviceInfo.getServiceName(), serviceName));
+                                Log.d("connection", host.toString() + " is same ip");
+                                return;
+                            } else
+                            {
+                                Log.d("connection", host.toString() + " is different ip");
                             }
 
                             try
                             {
                                 openChannel(new InetSocketAddress(host, port));
-                            }
-                            catch (IOException e)
+                            } catch (IOException e)
                             {
                                 Log.d("networking", "Unable to open channel due to " + e.getClass().getName());
                                 throw new RuntimeException(e);
@@ -242,7 +265,9 @@ public class GameConnection
                 Log.d("networking", "Discovery failed: Error code:" + errorCode);
                 nsdManager.stopServiceDiscovery(this);
             }
-        });
+        };
+
+        nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
     }
 
     private void initNetwork() throws IOException
@@ -291,8 +316,8 @@ public class GameConnection
                     SocketChannel sc = s.getChannel();
                     sc.configureBlocking(false);
 
-
                     sc.register(selector, SelectionKey.OP_READ);
+
                 } else if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ)
                 {
                     SocketChannel sc = null;
@@ -331,7 +356,7 @@ public class GameConnection
 //                        toast("[%s]: %s", key.attachment(), sb);
                     } catch (IOException e)
                     {
-                        Log.d("networking", "Unable to read data from network due to " +  e.getClass().getName());
+                        Log.d("networking", "Unable to read data from network due to " + e.getClass().getName());
                     } finally
                     {
                         if (sc != null && sc.isOpen())
@@ -344,7 +369,7 @@ public class GameConnection
                     SocketChannel sc = (SocketChannel) key.channel();
                     if (sc.finishConnect())
                     {
-                        key.interestOps(0);
+                        key.interestOps(SelectionKey.OP_READ);
                         ChannelAttachment attachment = new ChannelAttachment();
                         attachment.name = name;
                         attachment.id = currentId++;
@@ -360,7 +385,7 @@ public class GameConnection
 
                     if (messages.size() <= messageLocations.get(keyId))
                     {
-                        key.interestOps(0);
+                        key.interestOps(SelectionKey.OP_READ);
                         continue;
                     }
 
@@ -371,7 +396,7 @@ public class GameConnection
 
                     if (messages.size() == messageLocations.get(keyId))
                     {
-                        key.interestOps(0);
+                        key.interestOps(SelectionKey.OP_READ);
                     }
                 }
             }
@@ -393,5 +418,10 @@ public class GameConnection
 
             keys.clear();
         }
+    }
+
+    public synchronized boolean isRegistered()
+    {
+        return registered;
     }
 }

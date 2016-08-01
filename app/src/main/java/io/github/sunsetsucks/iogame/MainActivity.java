@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity
         glView = new IOGameGLSurfaceView(this);
         setContentView(glView);
 
+
 //        setContentView(R.layout.activity_main);
 
         networkThread = new Thread(new Runnable()
@@ -50,6 +51,9 @@ public class MainActivity extends AppCompatActivity
 
                 Util.connection = conn;
 
+                //noinspection StatementWithEmptyBody
+                while(!conn.isRegistered());
+
                 conn.discoverServices();
                 conn.runServerLoop();
             }
@@ -69,19 +73,22 @@ public class MainActivity extends AppCompatActivity
     public void onDestroy()
     {
         super.onDestroy();
-        try
-        {
-            Util.connection.closeAllChannels();
-        }
-        catch(IOException e)
-        {
-            toast("Error in closing network channels");
-        }
-        Util.connection = null;
 
-        networkThread.interrupt();
+        if(isFinishing())
+        {
+            try
+            {
+                Util.connection.closeAllChannels();
+            } catch (IOException e)
+            {
+                toast("Error in closing network channels");
+            }
 
-        Util.connection.deregisterService();
+            Util.connection.deregisterService();
+            Util.connection = null;
+
+            networkThread.interrupt();
+        }
     }
 
     @Override

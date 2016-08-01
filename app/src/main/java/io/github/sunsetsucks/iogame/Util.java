@@ -2,6 +2,7 @@ package io.github.sunsetsucks.iogame;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import io.github.sunsetsucks.iogame.network.GameConnection;
@@ -26,7 +27,9 @@ public class Util
             @Override
             public void run()
             {
-                Toast.makeText(context, String.format(text.toString(), params), length).show();
+                String txt = String.format(text.toString(), params);
+                Toast.makeText(context, txt, length).show();
+                Log.d("Toast", txt);
             }
         });
     }

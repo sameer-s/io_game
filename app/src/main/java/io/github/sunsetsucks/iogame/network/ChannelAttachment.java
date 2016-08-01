@@ -3,7 +3,7 @@ package io.github.sunsetsucks.iogame.network;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Locale;
 
 /**
  * Created by ssuri on 7/28/16.
@@ -53,4 +53,10 @@ public class ChannelAttachment implements Parcelable
             return new ChannelAttachment[size];
         }
     };
+
+    @Override
+    public String toString()
+    {
+        return String.format(Locale.US, "ChannelAttachment[name=%s, id=%d]", name, id);
+    }
 }
