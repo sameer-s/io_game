@@ -29,10 +29,14 @@ public class IOGameGLSurfaceView extends GLSurfaceView
     //Variables for Character movement and interaction.
     public static int currentX = 500;
     public static int currentY = 500;
-    public static int speed = 5;
+    public static int speed = 2;
     public static int ScreenW = 2000;
     public static int ScreenH = 1500;
     public static boolean exist = true;
+    public static float powerX = 0;
+    public static float powerY = 0;
+
+    public static double Pspeed = 0.0025;
 
     public IOGameGLSurfaceView(Context context)
     {
@@ -70,9 +74,6 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         float x = (xScreen / screenWidth) * -2.0f + 1.0f;
         float y = (yScreen / screenHeight) * -2.0f + 1.0f;
 
-        float Bx = (xScreen / screenWidth) * -2.0f +1.5f;
-        float By = (yScreen / screenHeight) * -2.0f +1.5f;
-
         currentX = currentX + (int)(y*speed);
         currentY = currentY + (int)(x*speed);
 
@@ -84,16 +85,36 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         else {
             renderer.toDraw.get(0).translationX = x;
             renderer.toDraw.get(0).translationY = y;
-            //renderer.toDraw.get(0).rotation += 2;
 
-          // Power up Movement, currently incomplete, teleports powerups from their starting postition.
-           if(exist) {
-               renderer.toDraw.get(1).translationX = -Bx;
-               renderer.toDraw.get(1).translationY = -By;
-           }
+         //   System.out.println("Player: ("+x+","+y+")");
+
+            CurrentXPosition(x);
+            CurrentYPosition(y);
+
+            renderer.toDraw.get(1).translationX = powerX;
+            renderer.toDraw.get(1).translationY = powerY;
+
+         //   System.out.println("PowerUp: ("+powerX+","+powerY+")");
+
         }
-        //  System.out.println("("+currentX+","+currentY+")");
         return true;
+    }
+
+    public static float CurrentXPosition(float x2){
+
+        if(x2 < -0.1 && x2>=-0.5) powerX = powerX + (float)(speed*(Pspeed));
+        if(x2<-0.5) powerX = powerX + (float)(speed*(2*Pspeed));
+         if(x2 >0.1 && x2<0.5) powerX = powerX - (float)(speed*(Pspeed));
+         if(x2 >=0.5) powerX = powerX - (float)(speed*(2*Pspeed));
+        return x2;
+    }
+
+    public static float CurrentYPosition(float y2){
+        if(y2 < -0.1 && y2>=-0.5) powerY = powerY + (float)(speed*(Pspeed));
+         if(y2<-0.5) powerY = powerY + (float)(speed*(2*Pspeed));
+         if(y2 >0.1 && y2<0.5) powerY = powerY -(float)(speed*(2*Pspeed));
+         if(y2 >=0.5) powerY = powerY - (float)(speed*(2*Pspeed));
+        return y2;
     }
 
     public static class Renderer implements GLSurfaceView.Renderer
@@ -106,6 +127,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
         public void onSurfaceCreated(GL10 unused, EGLConfig config)
         {
+
+
             float[] color = Color.SARCOLINE;
             GLES20.glClearColor(color[0], color[1], color[2], color[3]);
 //          shapesToDraw.add(((Shape) new Square().setState(45f, .5f, -.25f, 1f, 1f)).setColor(Color.GLAUCOUS));
@@ -122,6 +145,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             if(randomSign())
                 y = y * -1.0f;
             toDraw.add(((Shape) new Square().setState(0f, x, y, 0.25f, 0.25f)).setColor(Color.COQUELICOT));
+            powerX = x;
+            powerY = y;
         }
 
         private boolean randomSign()
@@ -151,9 +176,16 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             if(checkCollision(toDraw.get(0), toDraw.get(1))) //should probably not hardcode index 1?
             {
                 toDraw.remove(1);
-                speed =12;
+                speed =4;
                 generateObject();
                 exist =true;
+            }
+      /*      else if(powerX > 1.2 || powerX <-1.2 || powerY >1.2 ||powerY  <-1.2){
+                toDraw.remove(1);
+                generateObject();
+            } */
+            else{
+
             }
         }
 
