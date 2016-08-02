@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -43,6 +44,11 @@ public class Util
         toast(Toast.LENGTH_SHORT, text, params);
     }
 
+    public static void ltoast(final Object text, final Object... params)
+    {
+        toast(Toast.LENGTH_LONG, text, params);
+    }
+
     public static void alert(String title, String text, DialogInterface.OnClickListener listener)
     {
         new AlertDialog.Builder(context)
@@ -51,5 +57,24 @@ public class Util
                 .setPositiveButton("OK", listener)
                 .create()
                 .show();
+    }
+
+    public static String getDeviceStatus(int deviceStatus)
+    {
+        switch (deviceStatus)
+        {
+            case WifiP2pDevice.AVAILABLE:
+                return "Available";
+            case WifiP2pDevice.INVITED:
+                return "Invited";
+            case WifiP2pDevice.CONNECTED:
+                return "Connected";
+            case WifiP2pDevice.FAILED:
+                return "Failed";
+            case WifiP2pDevice.UNAVAILABLE:
+                return "Unavailable";
+            default:
+                return "Unknown";
+        }
     }
 }

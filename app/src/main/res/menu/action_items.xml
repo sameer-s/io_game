@@ -11,4 +11,9 @@
         android:id="@+id/atn_direct_discover"
         android:title="@string/discover_peers_button"
         app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/atn_direct_host"
+        android:title="Host Game!"
+        app:showAsAction="ifRoom|withText" />
 </menu>
