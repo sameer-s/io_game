@@ -69,7 +69,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:drawSelectorOnTop="false" />
+        android:drawSelectorOnTop="false"
+        android:choiceMode="multipleChoice"/>
+
+    <Button
+        android:layout_width="@+id/button_connect"
+        android:layout_height="wrap_content"
+        android:text="Connect to Hosts"/>
 
     <TextView
         android:id="@id/android:empty"

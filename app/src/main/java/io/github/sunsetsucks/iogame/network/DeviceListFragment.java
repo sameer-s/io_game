@@ -10,10 +10,12 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -33,19 +35,43 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
     ProgressDialog progressDialog = null;
     View contentView = null;
     private WifiP2pDevice device;
+    Button connectButton = null;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
         this.setListAdapter(new WiFiPeerListAdapter(R.layout.row_devices, peers));
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         contentView = inflater.inflate(R.layout.device_list, null);
+        connectButton = (Button) contentView.findViewById(R.id.button_connect);
+        connectButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                if(getListView().getCheckedItemCount() > 0)
+                {
+                    SparseBooleanArray positions = getListView().getCheckedItemPositions();
+                    for(int i = 0; i < getListView().getCount(); i++)
+                    {
+                        if(positions.get(i))
+                        {
+                            WifiP2pDevice device = (WifiP2pDevice) getListAdapter().getItem(i);
+                            ((DeviceActionListener) getActivity()).itemSelected(device);
+                        }
+                    }
+                }
+                else
+                {
+                    Util.alert("Oops!", "You must select at least one device to connect to!", null);
+                }
+            }
+        });
         return contentView;
     }
 
@@ -84,8 +110,8 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
     @Override
     public void onListItemClick(ListView l, View v, int position, long id)
     {
-        WifiP2pDevice device = (WifiP2pDevice) getListAdapter().getItem(position);
-        ((DeviceActionListener) getActivity()).itemSelected(device);
+//        WifiP2pDevice device = (WifiP2pDevice) getListAdapter().getItem(position);
+//        ((DeviceActionListener) getActivity()).itemSelected(device);
     }
 
     /**

@@ -56,7 +56,6 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver
         String action = intent.getAction();
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action))
         {
-
             // UI update to indicate wifi p2p status.
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED)
@@ -72,7 +71,6 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver
             Log.d("wifidirect", "P2P state changed - " + state);
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action))
         {
-
             // request available peers from the wifi p2p manager. This is an
             // asynchronous call and the calling activity is notified with a
             // callback on PeerListListener.onPeersAvailable()
@@ -84,7 +82,6 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver
             Log.d("wifidirect", "P2P peers changed");
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action))
         {
-
             if (manager == null)
             {
                 return;
@@ -94,12 +91,10 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver
 
             if (networkInfo.isConnected())
             {
-
                 // we are connected with the other device, request connection
                 // info to find group owner IP
 
-//                DeviceDetailFragment fragment = (DeviceDetailFragment) ((Activity) activity).getFragmentManager().findFragmentById(R.id.frag_detail);
-//                manager.requestConnectionInfo(channel, fragment);
+                manager.requestConnectionInfo(channel, new ConnectionInfoListener());
             } else
             {
                 // It's a Disconnect
