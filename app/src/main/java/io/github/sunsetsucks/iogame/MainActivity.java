@@ -14,5 +14,7 @@ public class MainActivity extends AppCompatActivity {
 
         glView = new IOGameGLSurfaceView(this);
         setContentView(glView);
+        
+        //ke$hen.passwd = IL001001
     }
 }
