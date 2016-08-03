@@ -13,6 +13,8 @@ import android.widget.Toast;
  */
 public class Util
 {
+    public static final int PORT = 54362;
+
     public static Context context = null;
 
     public static void toast(final int length, final Object text, final Object... params)
