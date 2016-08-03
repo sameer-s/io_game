@@ -21,9 +21,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewAnimator;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -34,14 +36,16 @@ import io.github.sunsetsucks.iogame.network.NetworkConnection;
 import io.github.sunsetsucks.iogame.network.NetworkHandler;
 import io.github.sunsetsucks.iogame.network.ServerListeningThread;
 import io.github.sunsetsucks.iogame.network.message.Message;
+import io.github.sunsetsucks.iogame.network.message.MessageBroadcaster;
 import io.github.sunsetsucks.iogame.network.message.MessageConvertible;
+import io.github.sunsetsucks.iogame.shape.Square;
 import io.github.sunsetsucks.iogame.view.IOGameGLSurfaceView;
 
 import static io.github.sunsetsucks.iogame.Util.toast;
 
 public class MainActivity extends AppCompatActivity implements
 		WifiP2pManager.ChannelListener, WifiP2pManager.ConnectionInfoListener,
-		WifiP2pManager.PeerListListener, NetworkHandler
+		WifiP2pManager.PeerListListener, NetworkHandler, MessageBroadcaster
 {
 	private IOGameGLSurfaceView glView;
 	private WifiP2pManager manager;
@@ -51,10 +55,13 @@ public class MainActivity extends AppCompatActivity implements
 	private ServerListeningThread serverListeningThread = null;
 	private boolean retryChannel = false;
 
+    private Button beginGameButton;
 	private ListView deviceList;
 	private List<WifiP2pDevice> peers = new ArrayList<>();
 
 	private List<NetworkConnection> connections = new ArrayList<>();
+
+    private int unsocketedConnections = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -63,9 +70,9 @@ public class MainActivity extends AppCompatActivity implements
 
 		Util.context = this;
 
-		glView = new IOGameGLSurfaceView(this);
-		// setContentView(glView);
 		setContentView(R.layout.main);
+
+        glView = (IOGameGLSurfaceView) findViewById(R.id.gl_view);
 
 		manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
 		channel = manager.initialize(this, getMainLooper(), null);
@@ -79,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements
 				.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
 		// intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 
+        beginGameButton = (Button) findViewById(R.id.button_begin_game);
 		deviceList = (ListView) findViewById(R.id.device_list);
 		deviceList.setAdapter(new DeviceListAdapter());
 		deviceList.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -95,6 +103,9 @@ public class MainActivity extends AppCompatActivity implements
 				config.wps.setup = WpsInfo.PBC;
 
 				manager.connect(channel, config, null);
+
+                unsocketedConnections++;
+                beginGameButton.setVisibility(View.GONE);
 			}
 		});
 	}
@@ -112,9 +123,6 @@ public class MainActivity extends AppCompatActivity implements
 	protected void onPause()
 	{
 		super.onPause();
-
-		if (glView != null)
-			glView.setVisibility(View.GONE);
 		unregisterReceiver(receiver);
 	}
 
@@ -146,10 +154,6 @@ public class MainActivity extends AppCompatActivity implements
 	public void onWindowFocusChanged(boolean hasFocus)
 	{
 		super.onWindowFocusChanged(hasFocus);
-		if (glView != null && hasFocus && glView.getVisibility() == View.GONE)
-		{
-			glView.setVisibility(View.VISIBLE);
-		}
 	}
 
 	@Override
@@ -234,6 +238,7 @@ public class MainActivity extends AppCompatActivity implements
 		view.setVisibility(View.GONE);
 		((ViewGroup) view.getParent()).findViewById(R.id.button_discover)
 				.setVisibility(View.VISIBLE);
+		beginGameButton.setVisibility(View.GONE);
 		deviceList.setVisibility(View.VISIBLE);
 
 		manager.removeGroup(channel, new WifiP2pManager.ActionListener()
@@ -271,6 +276,27 @@ public class MainActivity extends AppCompatActivity implements
 				toast("Discovery failed. Error code: %d", reasonCode);
 			}
 		});
+	}
+
+	public void beginGame(View view)
+	{
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                ViewAnimator animator = (ViewAnimator) findViewById(R.id.animator);
+                animator.showNext();
+            }
+        });
+
+        if(view != null)
+        {
+            Message message = new Message();
+            message.put("command", "begin");
+
+            broadcastMessage(message);
+        }
 	}
 
 	@Override
@@ -362,17 +388,53 @@ public class MainActivity extends AppCompatActivity implements
 	}
 
 	@Override
-	public void receiveNetworkMessage(String message)
+	public void receiveNetworkMessage(String str)
 	{
-		Log.d("iogame_networking", "Received message " + message);
+        final Message message = Message.from(str);
+        if(message.containsKey("command"))
+        {
+            switch((String) message.get("command"))
+            {
+                case "begin":
+                    System.out.println("Received signal \"Begin Game\"");
+                    beginGame(null);
+                    break;
+                case "Square_update":
+                    Square square = new Square();
+                    square.translationX = ((Double) message.get("translationX")).floatValue();
+                    square.translationY = ((Double) message.get("translationY")).floatValue();
+                    square.name = (String) message.get("name");
+                    glView.putObject(square);
+                    break;
+                default:
+                    Log.e("iogame_networking", "unknown network command " + message.get("command"));
+                    break;
+            }
+        }
 	}
 
 	@Override
 	public void addNewConnection(NetworkConnection connection)
 	{
 		connections.add(connection);
+        if(Util.isHost)
+        {
+            System.out.println(unsocketedConnections--);
+            if(unsocketedConnections <= 0)
+            {
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        beginGameButton.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+        }
 	}
 
+    @Override
     public void broadcastMessage(MessageConvertible messageConvertible)
     {
         Message.send(messageConvertible, connections);

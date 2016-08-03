@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import java.util.ArrayList;
 
 import io.github.sunsetsucks.iogame.network.message.Message;
 import io.github.sunsetsucks.iogame.view.IOGameGLSurfaceView;
@@ -111,8 +112,15 @@ public abstract class Shape extends GameObject
     @Override
     public Shape from(Message message)
     {
-        Shape shape = (Shape) super.from(message);
-        shape.color = (float[]) message.get("color");
-        return shape;
+        super.from(message);
+
+        ArrayList colorList = (ArrayList) message.get("color");
+        color = new float[colorList.size()];
+        for(int i = 0; i < colorList.size(); i++)
+        {
+            color[i] += ((Double) colorList.get(i)).floatValue();
+        }
+
+        return this;
     }
 }

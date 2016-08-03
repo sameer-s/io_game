@@ -11,13 +11,11 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 
-import java.util.ArrayList;
-import java.util.List;
+import static io.github.sunsetsucks.iogame.shape.GameObject.GameObjectMap;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import io.github.sunsetsucks.iogame.MainActivity;
 import io.github.sunsetsucks.iogame.Util;
 import io.github.sunsetsucks.iogame.shape.Color;
 import io.github.sunsetsucks.iogame.shape.GameObject;
@@ -26,17 +24,30 @@ import io.github.sunsetsucks.iogame.shape.Square;
 
 /**
  * Created by ssuri on 7/25/16.
- *
  */
 public class IOGameGLSurfaceView extends GLSurfaceView
 {
     private Renderer renderer;
     private Context context;
 
+    //    private static final String rand = UUID.randomUUID().toString();
+    private static final String rand = "abcd";
+
+
     public IOGameGLSurfaceView(Context context)
     {
         super(context);
+        init(context);
+    }
 
+    public IOGameGLSurfaceView(Context context, AttributeSet attrs)
+    {
+        super(context, attrs);
+        init(context);
+    }
+
+    private void init(Context context)
+    {
         this.context = context;
 
         setEGLContextClientVersion(2);
@@ -46,18 +57,16 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         renderer = new Renderer();
 
         setRenderer(renderer);
-
-//        setRenderMode(RENDERMODE_WHEN_DIRTY);
+        //        setRenderMode(RENDERMODE_WHEN_DIRTY);
     }
 
-    public IOGameGLSurfaceView(Context context, AttributeSet attrs)
-    {
-        super(context, attrs);
-    }
 
     @Override
     public boolean onTouchEvent(MotionEvent e)
     {
+        //TODO remove
+        if(!Util.isHost) return true;
+
         float xScreen = e.getX();
         float yScreen = e.getY();
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -69,34 +78,52 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         float x = (xScreen / screenWidth) * -2.0f + 1.0f;
         float y = (yScreen / screenHeight) * -2.0f + 1.0f;
 
-        renderer.toDraw.get(0).translationX = x;
-        renderer.toDraw.get(0).translationY = y;
+        renderer.toDraw.get("player" + rand).translationX = x;
+        renderer.toDraw.get("player" + rand).translationY = y;
 
         return true;
     }
 
     // format x,y
-    public void setShapeX_Y(int index, String in)
+    // TODO remove
+    @Deprecated
+    public void setShapeX_Y(String name, float x, float y)
     {
-        renderer.toDraw.get(index).translationX = Integer.parseInt(in.split(",")[0]);
-        renderer.toDraw.get(index).translationY = Integer.parseInt(in.split(",")[1]);
+        if (renderer.toDraw.size() < 1)
+        {
+            return;
+        }
+
+        renderer.toDraw.get(name).translationX = x;
+        renderer.toDraw.get(name).translationY = y;
+    }
+
+    public void putObject(GameObject obj)
+    {
+        if (renderer.toDraw.containsKey(obj.name))
+        {
+            setShapeX_Y(obj.name, obj.translationX, obj.translationY);
+        } else
+        {
+            System.out.println("malahupitin");
+//            renderer.toDraw.put(obj);
+        }
     }
 
     public static class Renderer implements GLSurfaceView.Renderer
     {
-        private List<GameObject> toDraw = new ArrayList<>();
+        private GameObjectMap toDraw = new GameObjectMap();
 
-        private final float[] mvpMatrix        = new float[16], // model view projection
-                              projectionMatrix = new float[16],
-                              viewMatrix       = new float[16];
+        private final float[] mvpMatrix = new float[16], // model view projection
+                projectionMatrix = new float[16],
+                viewMatrix = new float[16];
 
         public void onSurfaceCreated(GL10 unused, EGLConfig config)
         {
             float[] color = Color.SARCOLINE;
             GLES20.glClearColor(color[0], color[1], color[2], color[3]);
 
-//            shapesToDraw.add(((Shape) new Square().setState(45f, .5f, -.25f, 1f, 1f)).setColor(Color.GLAUCOUS));
-            toDraw.add(((Shape) new Square().setState(0f, .5f, .25f, 1f, 1f)).setColor(Color.GLAUCOUS));
+            toDraw.put(((Shape) new Square().setState(0f, .5f, .25f, 1f, 1f)).setColor(Color.randomColor(rand)).setName("player" + rand));
         }
 
         public void onDrawFrame(GL10 unused)
@@ -106,12 +133,15 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             Matrix.setLookAtM(viewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
             Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
-            for(GameObject go : toDraw)
+            for (String s : toDraw.keySet())
             {
+                GameObject go = toDraw.get(s);
                 go.draw(mvpMatrix);
 
-                // TODO fix this code it is bad -- If you don't know why ask Sameer
-                ((MainActivity) Util.context).broadcastMessage(go);
+                if (go.name.contains(rand) && Util.isHost /* TODO remove */)
+                {
+                    Util.broadcastMessage(go);
+                }
             }
         }
 

@@ -2,6 +2,8 @@ package io.github.sunsetsucks.iogame.shape;
 
 import android.opengl.Matrix;
 
+import java.util.HashMap;
+
 import io.github.sunsetsucks.iogame.network.message.Message;
 import io.github.sunsetsucks.iogame.network.message.MessageConvertible;
 
@@ -15,6 +17,7 @@ public abstract class GameObject implements MessageConvertible
     public float rotation;
     public float translationX = 0f, translationY = 0f;
     public float scaleX = 1f, scaleY = 1f;
+    public String name = null;
 
     public GameObject setState(float rotation, float translationX, float translationY, float scaleX, float scaleY)
     {
@@ -24,6 +27,12 @@ public abstract class GameObject implements MessageConvertible
         this.scaleX = scaleX;
         this.scaleY = scaleY;
 
+        return this;
+    }
+
+    public GameObject setName(String name)
+    {
+        this.name = name;
         return this;
     }
 
@@ -53,7 +62,9 @@ public abstract class GameObject implements MessageConvertible
     public Message toMessage()
     {
         Message message = new Message();
-        message.put("class", this.getClass());
+        message.put("command", this.getClass().getSimpleName() + "_update");
+        message.put("name", name);
+        message.put("class", this.getClass().getName());
         message.put("rotation", rotation);
         message.put("translationX", translationX);
         message.put("translationY", translationY);
@@ -66,22 +77,21 @@ public abstract class GameObject implements MessageConvertible
     @Override
     public GameObject from(Message message)
     {
-        try
-        {
-            Class _class = (Class) message.get("class");
+        this.name = (String) message.get("name");
+        this.rotation = ((Double) message.get("rotation")).floatValue();
+        this.translationX = ((Double) message.get("translationX")).floatValue();
+        this.translationY = ((Double) message.get("translationY")).floatValue();
+        this.scaleX = ((Double) message.get("scaleX")).floatValue();
+        this.scaleY = ((Double) message.get("scaleY")).floatValue();
 
-            GameObject gameObject = (GameObject) _class.newInstance();
-            gameObject.rotation = (Float) message.get("rotation");
-            gameObject.translationX = (Float) message.get("translationX");
-            gameObject.translationY = (Float) message.get("translationY");
-            gameObject.scaleX = (Float) message.get("scaleX");
-            gameObject.scaleY = (Float) message.get("scaleY");
+        return this;
+    }
 
-            return gameObject;
-        }
-        catch (InstantiationException | IllegalAccessException e)
+    public static class GameObjectMap extends HashMap<String, GameObject>
+    {
+        public void put(GameObject obj)
         {
-            return null;
+            put(obj.name, obj);
         }
     }
 }

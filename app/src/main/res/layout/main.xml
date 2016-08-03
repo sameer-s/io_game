@@ -1,31 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ViewAnimator
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    android:id="@+id/animator"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
+
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Host Game"
-            android:onClick="host"/>
-        <Button
-            android:id="@+id/button_discover"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Discover"
-            android:visibility="gone"
-            android:onClick="discover"/>
+            android:orientation="horizontal">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="host"
+                android:text="Host Game"/>
+
+            <Button
+                android:id="@+id/button_discover"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="discover"
+                android:text="Discover"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/button_begin_game"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="beginGame"
+                android:text="Begin Game"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/device_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/device_list"
+    <io.github.sunsetsucks.iogame.view.IOGameGLSurfaceView
+        android:id="@+id/gl_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Join Game"
-        android:visibility="gone"/>
-</LinearLayout>
+        android:layout_height="match_parent"/>
+</ViewAnimator>

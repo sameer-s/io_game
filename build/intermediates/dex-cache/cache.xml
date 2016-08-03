@@ -1,12 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" >
-
-    <item
-        jar="C:\Users\Sameer\Work\Java\Android\IOGame\libs\gson-2.7.jar"
-        jumboMode="false"
-        revision="24.0.1"
-        sha1="751f548c85fa49f330cecbb1875893f971b33c4e">
-        <dex dex="C:\Users\Sameer\Work\Java\Android\IOGame\app\build\intermediates\pre-dexed\debug\gson-2.7_01f6cd95be3aca14f99fc586213bd09e81a5dbae.jar" />
-    </item>
-
-</items>
+<items version="2" />
