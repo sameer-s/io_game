@@ -8,6 +8,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
+import io.github.sunsetsucks.iogame.network.message.Message;
 import io.github.sunsetsucks.iogame.view.IOGameGLSurfaceView;
 
 /**
@@ -97,5 +98,21 @@ public abstract class Shape extends GameObject
 
         // disables our access to the vertex array
         GLES20.glDisableVertexAttribArray(positionHandle);
+    }
+
+    @Override
+    public Message toMessage()
+    {
+        Message message = super.toMessage();
+        message.put("color", color);
+        return message;
+    }
+
+    @Override
+    public Shape from(Message message)
+    {
+        Shape shape = (Shape) super.from(message);
+        shape.color = (float[]) message.get("color");
+        return shape;
     }
 }

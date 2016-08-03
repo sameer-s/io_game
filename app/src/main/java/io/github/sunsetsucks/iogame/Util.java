@@ -17,6 +17,8 @@ public class Util
 
     public static Context context = null;
 
+    public static boolean isHost = false;
+
     public static void toast(final int length, final Object text, final Object... params)
     {
         assertActivity("create toast");

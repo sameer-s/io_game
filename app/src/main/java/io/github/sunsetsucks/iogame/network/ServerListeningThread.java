@@ -31,13 +31,14 @@ public class ServerListeningThread extends Thread
 		}
 		catch (IOException e)
 		{
-			Util.toast("An error occured in setting up connections");
+			Util.toast("An error occurred in setting up connections");
 		}
 	}
 
 	private void _run() throws IOException
 	{
 		serverSocket = new ServerSocket(Util.PORT);
+        Util.toast("Opened server-side socket");
 		while (true)
 		{
 			try

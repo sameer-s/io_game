@@ -17,6 +17,8 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import io.github.sunsetsucks.iogame.MainActivity;
+import io.github.sunsetsucks.iogame.Util;
 import io.github.sunsetsucks.iogame.shape.Color;
 import io.github.sunsetsucks.iogame.shape.GameObject;
 import io.github.sunsetsucks.iogame.shape.Shape;
@@ -74,10 +76,10 @@ public class IOGameGLSurfaceView extends GLSurfaceView
     }
 
     // format x,y
-    public void setShapeZeroX_Y(String in)
+    public void setShapeX_Y(int index, String in)
     {
-        renderer.toDraw.get(0).translationX = Integer.parseInt(in.split(",")[0]);
-        renderer.toDraw.get(0).translationY = Integer.parseInt(in.split(",")[1]);
+        renderer.toDraw.get(index).translationX = Integer.parseInt(in.split(",")[0]);
+        renderer.toDraw.get(index).translationY = Integer.parseInt(in.split(",")[1]);
     }
 
     public static class Renderer implements GLSurfaceView.Renderer
@@ -104,7 +106,13 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             Matrix.setLookAtM(viewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
             Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
-            for(GameObject go : toDraw) go.draw(mvpMatrix);
+            for(GameObject go : toDraw)
+            {
+                go.draw(mvpMatrix);
+
+                // TODO fix this code it is bad -- If you don't know why ask Sameer
+                ((MainActivity) Util.context).broadcastMessage(go);
+            }
         }
 
         public void onSurfaceChanged(GL10 unused, int width, int height)

@@ -2,12 +2,15 @@ package io.github.sunsetsucks.iogame.shape;
 
 import android.opengl.Matrix;
 
+import io.github.sunsetsucks.iogame.network.message.Message;
+import io.github.sunsetsucks.iogame.network.message.MessageConvertible;
+
 
 /**
  * Created by ssuri on 7/26/16.
  *
  */
-public abstract class GameObject
+public abstract class GameObject implements MessageConvertible
 {
     public float rotation;
     public float translationX = 0f, translationY = 0f;
@@ -45,4 +48,40 @@ public abstract class GameObject
     }
 
     public abstract void draw(float[] mvpMatrix);
+
+    @Override
+    public Message toMessage()
+    {
+        Message message = new Message();
+        message.put("class", this.getClass());
+        message.put("rotation", rotation);
+        message.put("translationX", translationX);
+        message.put("translationY", translationY);
+        message.put("scaleX", scaleX);
+        message.put("scaleY", scaleY);
+
+        return message;
+    }
+
+    @Override
+    public GameObject from(Message message)
+    {
+        try
+        {
+            Class _class = (Class) message.get("class");
+
+            GameObject gameObject = (GameObject) _class.newInstance();
+            gameObject.rotation = (Float) message.get("rotation");
+            gameObject.translationX = (Float) message.get("translationX");
+            gameObject.translationY = (Float) message.get("translationY");
+            gameObject.scaleX = (Float) message.get("scaleX");
+            gameObject.scaleY = (Float) message.get("scaleY");
+
+            return gameObject;
+        }
+        catch (InstantiationException | IllegalAccessException e)
+        {
+            return null;
+        }
+    }
 }
