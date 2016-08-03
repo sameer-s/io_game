@@ -5,21 +5,21 @@ import android.graphics.Point;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-        import android.util.AttributeSet;
-        import android.view.Display;
+import android.util.AttributeSet;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 
-        import java.util.ArrayList;
-        import java.util.List;
+import java.util.ArrayList;
+import java.util.List;
 
-        import javax.microedition.khronos.egl.EGLConfig;
-        import javax.microedition.khronos.opengles.GL10;
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
 
-        import io.github.sunsetsucks.iogame.shape.Color;
-        import io.github.sunsetsucks.iogame.shape.GameObject;
-        import io.github.sunsetsucks.iogame.shape.Shape;
-        import io.github.sunsetsucks.iogame.shape.Square;
+import io.github.sunsetsucks.iogame.shape.Color;
+import io.github.sunsetsucks.iogame.shape.GameObject;
+import io.github.sunsetsucks.iogame.shape.Shape;
+import io.github.sunsetsucks.iogame.shape.Square;
 
 public class IOGameGLSurfaceView extends GLSurfaceView
 {
@@ -29,14 +29,22 @@ public class IOGameGLSurfaceView extends GLSurfaceView
     //Variables for Character movement and interaction.
     public static int currentX = 500;
     public static int currentY = 500;
-    public static int speed = 2;
-    public static int ScreenW = 2000;
-    public static int ScreenH = 1500;
-    public static boolean exist = true;
+    public static int SpawnX = currentX;
+    public static int SpawnY = currentY;
+
+    public static int speed = 3;
+
+    public static int ScreenW = 3000;
+    public static int ScreenH = 2000;
+
+    public static int SpawnD = 400;
+
     public static float powerX = 0;
     public static float powerY = 0;
 
     public static double Pspeed = 0.0025;
+
+    public static boolean pExist = true;
 
     public IOGameGLSurfaceView(Context context)
     {
@@ -86,16 +94,15 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             renderer.toDraw.get(0).translationX = x;
             renderer.toDraw.get(0).translationY = y;
 
-         //   System.out.println("Player: ("+x+","+y+")");
+          //  System.out.println("Player: ("+x+","+y+")");
+           // System.out.println("Stage: ("+currentX+","+currentY+")");
 
-            CurrentXPosition(x);
-            CurrentYPosition(y);
-
-            renderer.toDraw.get(1).translationX = powerX;
-            renderer.toDraw.get(1).translationY = powerY;
-
-         //   System.out.println("PowerUp: ("+powerX+","+powerY+")");
-
+        //    if(pExist) {
+                CurrentXPosition(x);
+                CurrentYPosition(y);
+                renderer.toDraw.get(1).translationX = powerX;
+                renderer.toDraw.get(1).translationY = powerY;
+         //   }
         }
         return true;
     }
@@ -128,7 +135,6 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         public void onSurfaceCreated(GL10 unused, EGLConfig config)
         {
 
-
             float[] color = Color.SARCOLINE;
             GLES20.glClearColor(color[0], color[1], color[2], color[3]);
 //          shapesToDraw.add(((Shape) new Square().setState(45f, .5f, -.25f, 1f, 1f)).setColor(Color.GLAUCOUS));
@@ -144,9 +150,11 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             y = (float) Math.random();
             if(randomSign())
                 y = y * -1.0f;
-            toDraw.add(((Shape) new Square().setState(0f, x, y, 0.25f, 0.25f)).setColor(Color.COQUELICOT));
             powerX = x;
             powerY = y;
+           // pExist=true;
+            toDraw.add(((Shape) new Square().setState(0f, x, y, 0.25f, 0.25f)).setColor(Color.COQUELICOT));
+
         }
 
         private boolean randomSign()
@@ -160,9 +168,9 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         {
             boolean aCollision = a.translationX + a.scaleX >= b.translationX && b.translationX + b.scaleX >= a.translationX;
             boolean bCollision = a.translationY + a.scaleY >= b.translationY && b.translationY + b.scaleY >= a.translationY;
+            //System.out.println("Working!!");
             return aCollision && bCollision;
         }
-
 
         public void onDrawFrame(GL10 unused)
         {
@@ -175,19 +183,31 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
             if(checkCollision(toDraw.get(0), toDraw.get(1))) //should probably not hardcode index 1?
             {
+               // pExist=false;
+
                 toDraw.remove(1);
-                speed =4;
+                //System.out.println("Worked");
+                speed =5;
                 generateObject();
-                exist =true;
             }
-      /*      else if(powerX > 1.2 || powerX <-1.2 || powerY >1.2 ||powerY  <-1.2){
-                toDraw.remove(1);
-                generateObject();
-            } */
-            else{
+         //   if(currentX - SpawnD >= SpawnX || SpawnX +SpawnD <= currentX || currentY - SpawnD >= SpawnY || SpawnY + SpawnD <= currentY) powerupSpawn();
 
             }
-        }
+
+    /*    public void powerupSpawn(){
+            double Rand = Math.random();
+                if(Rand <= 0.4){
+                    pExist=true;
+                    generateObject();
+                }
+                else{
+                    //System.out.println("No Spawn");
+                    SpawnX = currentX;
+                    SpawnY = currentY;
+                    //System.out.println("Working!");
+                }
+
+        } */
 
         public void onSurfaceChanged(GL10 unused, int width, int height)
         {

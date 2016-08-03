@@ -18,7 +18,11 @@ public abstract class Color
     COQUELICOT  = makeInt(236, 73, 8, 255),
     EBURNEAN    = makeInt(245, 240, 246, 255),
     SARCOLINE   = makeInt(250, 223, 174, 255),
-    GLAUCOUS    = makeInt(96, 130, 182, 255);
+    GLAUCOUS    = makeInt(96, 130, 182, 255),
+    MIKADO      = makeInt(255, 196, 12, 255),
+    FULVOUS     = makeInt(228, 132, 0, 255),
+    FALU        = makeInt(128, 24, 24, 255);
+
 
     public static float[] make(double red, double green, double blue, double alpha)
     {
