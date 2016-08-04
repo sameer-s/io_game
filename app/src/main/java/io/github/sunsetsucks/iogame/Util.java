@@ -8,8 +8,7 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.util.Log;
 import android.widget.Toast;
 
-import io.github.sunsetsucks.iogame.network.message.MessageBroadcaster;
-import io.github.sunsetsucks.iogame.network.message.MessageConvertible;
+import java.io.Serializable;
 
 /**
  * Created by Sameer on 2016-07-27.
@@ -85,13 +84,14 @@ public class Util
         }
     }
 
-    public static void broadcastMessage(MessageConvertible messageConvertible)
-    {
-        if(!(context instanceof MessageBroadcaster))
-        {
-            throw new IllegalStateException("Util.context must be an MessageBroadcaster to broadcast messages.");
-        }
-
-        ((MessageBroadcaster) context).broadcastMessage(messageConvertible);
-    }
+    // TODO reimplement
+//    public static void broadcastMessage(Serializable toSend)
+//    {
+//        if(!(context instanceof MessageBroadcaster))
+//        {
+//            throw new IllegalStateException("Util.context must be an MessageBroadcaster to broadcast messages.");
+//        }
+//
+//        ((MessageBroadcaster) context).broadcastMessage(messageConvertible);
+//    }
 }

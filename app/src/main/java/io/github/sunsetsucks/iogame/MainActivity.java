@@ -27,25 +27,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewAnimator;
 
+
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import io.github.sunsetsucks.iogame.network.NetworkConnection;
 import io.github.sunsetsucks.iogame.network.NetworkHandler;
 import io.github.sunsetsucks.iogame.network.ServerListeningThread;
-import io.github.sunsetsucks.iogame.network.message.Message;
-import io.github.sunsetsucks.iogame.network.message.MessageBroadcaster;
-import io.github.sunsetsucks.iogame.network.message.MessageConvertible;
-import io.github.sunsetsucks.iogame.shape.Square;
 import io.github.sunsetsucks.iogame.view.IOGameGLSurfaceView;
 
 import static io.github.sunsetsucks.iogame.Util.toast;
 
 public class MainActivity extends AppCompatActivity implements
 		WifiP2pManager.ChannelListener, WifiP2pManager.ConnectionInfoListener,
-		WifiP2pManager.PeerListListener, NetworkHandler, MessageBroadcaster
+		WifiP2pManager.PeerListListener, NetworkHandler
 {
 	private IOGameGLSurfaceView glView;
 	private WifiP2pManager manager;
@@ -292,10 +291,8 @@ public class MainActivity extends AppCompatActivity implements
 
         if(view != null)
         {
-            Message message = new Message();
-            message.put("command", "begin");
-
-            broadcastMessage(message);
+            // TODO Reimplement [complete]
+            broadcastMessage("begin");
         }
 	}
 
@@ -388,34 +385,10 @@ public class MainActivity extends AppCompatActivity implements
 	}
 
 	@Override
-	public void receiveNetworkMessage(String str)
+	public void receiveNetworkMessage(Serializable message)
 	{
-        final Message message = Message.from(str);
-        if(message.containsKey("command"))
-        {
-            switch((String) message.get("command"))
-            {
-                case "begin":
-                    System.out.println("Received signal \"Begin Game\"");
-                    beginGame(null);
-                    break;
-                case "Square_update":
-                    if (glView.existsObject((String) message.get("name")))
-                    {
-                        glView.updateObject((String) message.get("name"), message);
-                    }
-                    else
-                    {
-                        Square square = new Square();
-                        square.from(message);
-                        glView.putObject(square);
-                    }
-                    break;
-                default:
-                    Log.e("iogame_networking", "unknown network command " + message.get("command"));
-                    break;
-            }
-        }
+        // TODO reimplement
+        System.out.println(message.toString());
 	}
 
 	@Override
@@ -437,11 +410,20 @@ public class MainActivity extends AppCompatActivity implements
                 });
             }
         }
+        else
+        {
+            HashMap<String, String> message = new HashMap<>();
+            message.put("test", "test");
+            broadcastMessage(message);
+        }
 	}
 
-    @Override
-    public void broadcastMessage(MessageConvertible messageConvertible)
+    // TODO reimplement [complete]
+    public void broadcastMessage(Serializable message)
     {
-        Message.send(messageConvertible, connections);
+        for(NetworkConnection connection : connections)
+        {
+            connection.write(message);
+        }
     }
 }

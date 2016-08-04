@@ -17,7 +17,6 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import io.github.sunsetsucks.iogame.Util;
-import io.github.sunsetsucks.iogame.network.message.Message;
 import io.github.sunsetsucks.iogame.shape.Color;
 import io.github.sunsetsucks.iogame.shape.GameObject;
 import io.github.sunsetsucks.iogame.shape.Shape;
@@ -28,7 +27,7 @@ import io.github.sunsetsucks.iogame.shape.Square;
  */
 public class IOGameGLSurfaceView extends GLSurfaceView
 {
-    private Renderer renderer;
+    public Renderer renderer;
     private Context context;
 
     //    private static final String rand = UUID.randomUUID().toString();
@@ -46,6 +45,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         super(context, attrs);
         init(context);
     }
+
+
 
     private void init(Context context)
     {
@@ -99,24 +100,9 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         renderer.toDraw.get(name).translationY = y;
     }
 
-    public void putObject(GameObject obj)
-    {
-        renderer.toDraw.put(obj);
-    }
-
-    public boolean existsObject(String name)
-    {
-        return renderer.toDraw.containsKey(name);
-    }
-
-    public void updateObject(String name, Message update)
-    {
-        renderer.toDraw.get(name).from(update);
-    }
-
     public static class Renderer implements GLSurfaceView.Renderer
     {
-        private GameObjectMap toDraw = new GameObjectMap();
+        public GameObjectMap toDraw = new GameObjectMap();
 
         private final float[] mvpMatrix = new float[16], // model view projection
                 projectionMatrix = new float[16],
@@ -144,7 +130,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
                 if (go.name.contains(rand) && Util.isHost /* TODO remove */)
                 {
-                    Util.broadcastMessage(go);
+//                    Util.broadcastMessage(go);
                 }
             }
         }

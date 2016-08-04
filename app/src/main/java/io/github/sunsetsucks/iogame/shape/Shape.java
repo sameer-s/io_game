@@ -3,13 +3,13 @@ package io.github.sunsetsucks.iogame.shape;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
+import com.google.gson.annotations.Expose;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-import java.util.ArrayList;
 
-import io.github.sunsetsucks.iogame.network.message.Message;
 import io.github.sunsetsucks.iogame.view.IOGameGLSurfaceView;
 
 /**
@@ -33,6 +33,7 @@ public abstract class Shape extends GameObject
     public abstract float[] getCoords();
     public abstract short[] getDrawOrder();
 
+    @Expose
     public float[] color = Color.RED;
 
     public Shape()
@@ -99,28 +100,5 @@ public abstract class Shape extends GameObject
 
         // disables our access to the vertex array
         GLES20.glDisableVertexAttribArray(positionHandle);
-    }
-
-    @Override
-    public Message toMessage()
-    {
-        Message message = super.toMessage();
-        message.put("color", color);
-        return message;
-    }
-
-    @Override
-    public Shape from(Message message)
-    {
-        super.from(message);
-
-        ArrayList colorList = (ArrayList) message.get("color");
-        color = new float[colorList.size()];
-        for(int i = 0; i < colorList.size(); i++)
-        {
-            color[i] += ((Double) colorList.get(i)).floatValue();
-        }
-
-        return this;
     }
 }

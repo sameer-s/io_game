@@ -2,22 +2,23 @@ package io.github.sunsetsucks.iogame.shape;
 
 import android.opengl.Matrix;
 
-import java.util.HashMap;
+import com.google.gson.annotations.Expose;
 
-import io.github.sunsetsucks.iogame.network.message.Message;
-import io.github.sunsetsucks.iogame.network.message.MessageConvertible;
+import java.util.HashMap;
 
 
 /**
  * Created by ssuri on 7/26/16.
  *
  */
-public abstract class GameObject implements MessageConvertible
+public abstract class GameObject
 {
-    public float rotation = 0f;
-    public float translationX = 0f, translationY = 0f;
-    public float scaleX = 1f, scaleY = 1f;
-    public String name = null;
+    @Expose public float rotation = 0f;
+    @Expose public float translationX = 0f;
+    @Expose public float translationY = 0f;
+    @Expose public float scaleX = 1f;
+    @Expose public float scaleY = 1f;
+    @Expose public String name = null;
 
     public GameObject setState(float rotation, float translationX, float translationY, float scaleX, float scaleY)
     {
@@ -57,35 +58,6 @@ public abstract class GameObject implements MessageConvertible
     }
 
     public abstract void draw(float[] mvpMatrix);
-
-    @Override
-    public Message toMessage()
-    {
-        Message message = new Message();
-        message.put("command", this.getClass().getSimpleName() + "_update");
-        message.put("name", name);
-        message.put("class", this.getClass().getName());
-        message.put("rotation", rotation);
-        message.put("translationX", translationX);
-        message.put("translationY", translationY);
-        message.put("scaleX", scaleX);
-        message.put("scaleY", scaleY);
-
-        return message;
-    }
-
-    @Override
-    public GameObject from(Message message)
-    {
-        this.name = (String) message.get("name");
-        this.rotation = ((Double) message.get("rotation")).floatValue();
-        this.translationX = ((Double) message.get("translationX")).floatValue();
-        this.translationY = ((Double) message.get("translationY")).floatValue();
-        this.scaleX = ((Double) message.get("scaleX")).floatValue();
-        this.scaleY = ((Double) message.get("scaleY")).floatValue();
-
-        return this;
-    }
 
     public static class GameObjectMap extends HashMap<String, GameObject>
     {

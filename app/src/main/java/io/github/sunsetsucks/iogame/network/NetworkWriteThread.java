@@ -1,7 +1,11 @@
 package io.github.sunsetsucks.iogame.network;
 
+import android.util.Log;
+
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.net.Socket;
 
 /**
@@ -10,7 +14,7 @@ import java.net.Socket;
 public class NetworkWriteThread extends Thread
 {
     private Socket socket;
-    private String message = null;
+    private Object message = null;
 
     private final Object lock = new Object();
 
@@ -19,7 +23,7 @@ public class NetworkWriteThread extends Thread
         this.socket = socket;
     }
 
-    private PrintWriter out;
+    private ObjectOutputStream out;
 
     @Override
     public void run()
@@ -29,7 +33,7 @@ public class NetworkWriteThread extends Thread
         {
             try
             {
-                out = new PrintWriter(socket.getOutputStream(), true);
+                out = new ObjectOutputStream(socket.getOutputStream());
             } catch (IOException e)
             {
                 continue;
@@ -44,16 +48,30 @@ public class NetworkWriteThread extends Thread
             {
                 if (message != null)
                 {
-                    out.println(message);
+                    try
+                    {
+                        out.writeObject(message);
+                    }
+                    catch (IOException e)
+                    {
+                        Log.e("iogame_networking", "Failed to write message");
+                    }
+
                     message = null;
                 }
             }
         }
-
-        out.close();
+        try
+        {
+            out.close();
+        }
+        catch (IOException e)
+        {
+            Log.e("iogame_networking", "Failed to close socket output stream");
+        }
     }
 
-    public void writeMessage(String messaqe)
+    public void writeMessage(Serializable messaqe)
     {
         synchronized (lock)
         {

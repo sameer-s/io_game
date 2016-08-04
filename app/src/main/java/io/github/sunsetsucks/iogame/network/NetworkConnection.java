@@ -3,6 +3,7 @@ package io.github.sunsetsucks.iogame.network;
 import android.util.Log;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.Socket;
 
 /**
@@ -26,7 +27,7 @@ public class NetworkConnection
         write.start();
     }
 
-    public void write(String message)
+    public void write(Serializable message)
     {
         write.writeMessage(message);
     }
