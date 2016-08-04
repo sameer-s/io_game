@@ -16,6 +16,7 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import io.github.sunsetsucks.iogame.game.GameInfo;
 import io.github.sunsetsucks.iogame.shape.Color;
 import io.github.sunsetsucks.iogame.shape.GameObject;
 import io.github.sunsetsucks.iogame.shape.Shape;
@@ -27,12 +28,12 @@ public class IOGameGLSurfaceView extends GLSurfaceView
     private Context context;
 
     //Variables for Character movement and interaction.
-    public static int currentX = 500;
-    public static int currentY = 500;
+    public static int currentX = 1500;
+    public static int currentY = 1000;
     public static int SpawnX = currentX;
     public static int SpawnY = currentY;
 
-    public static int speed = 3;
+    public static int speed = 4;
 
     public static int ScreenW = 3000;
     public static int ScreenH = 2000;
@@ -44,7 +45,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
     public static double Pspeed = 0.0025;
 
-    public static boolean pExist = true;
+    public static int Ptotal =1;
 
     public IOGameGLSurfaceView(Context context)
     {
@@ -79,6 +80,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         display.getSize(size);
         int screenWidth = size.x, screenHeight = size.y;
 
+
         float x = (xScreen / screenWidth) * -2.0f + 1.0f;
         float y = (yScreen / screenHeight) * -2.0f + 1.0f;
 
@@ -86,16 +88,25 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         currentY = currentY + (int)(x*speed);
 
         //Boundaries for Stage
-        if(currentX <= 0) currentX=0;
-        else if(currentX >= ScreenW) currentX=ScreenW;
-        else if(currentY <=0) currentY=0;
-        else if (currentY >= ScreenH) currentY = ScreenH;
-        else {
-            renderer.toDraw.get(0).translationX = x;
-            renderer.toDraw.get(0).translationY = y;
+        if(currentX <= 0) {
+            currentX = 0;
+        }
+        else if(currentX >= ScreenW){
+            currentX=ScreenW;
+        }
+        else if(currentY <=0){
+            currentY=0;
+        }
+        else if (currentY >= ScreenH){
+            currentY = ScreenH;
+        }
 
-          //  System.out.println("Player: ("+x+","+y+")");
-           // System.out.println("Stage: ("+currentX+","+currentY+")");
+        else {
+            renderer.toDraw.get(0).translationX = x/5;
+            renderer.toDraw.get(0).translationY = y/5;
+
+        //    System.out.println("Player: ("+x+","+y+")");
+        // System.out.println("Stage: ("+currentX+","+currentY+")");
 
         //    if(pExist) {
                 CurrentXPosition(x);
@@ -108,7 +119,6 @@ public class IOGameGLSurfaceView extends GLSurfaceView
     }
 
     public static float CurrentXPosition(float x2){
-
         if(x2 < -0.1 && x2>=-0.5) powerX = powerX + (float)(speed*(Pspeed));
         if(x2<-0.5) powerX = powerX + (float)(speed*(2*Pspeed));
          if(x2 >0.1 && x2<0.5) powerX = powerX - (float)(speed*(Pspeed));
@@ -134,10 +144,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
         public void onSurfaceCreated(GL10 unused, EGLConfig config)
         {
-
             float[] color = Color.SARCOLINE;
             GLES20.glClearColor(color[0], color[1], color[2], color[3]);
-//          shapesToDraw.add(((Shape) new Square().setState(45f, .5f, -.25f, 1f, 1f)).setColor(Color.GLAUCOUS));
             toDraw.add(((Shape) new Square().setState(0f, .5f, .25f, .6f, .6f)).setColor(Color.GLAUCOUS));
             generateObject();
         }
@@ -146,15 +154,14 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             float x, y;
             x = (float) Math.random();
             if(randomSign())
-                x = x * -1.0f;
+                x = x * -1.2f;
             y = (float) Math.random();
             if(randomSign())
-                y = y * -1.0f;
+                y = y * -1.2f;
             powerX = x;
             powerY = y;
            // pExist=true;
             toDraw.add(((Shape) new Square().setState(0f, x, y, 0.25f, 0.25f)).setColor(Color.COQUELICOT));
-
         }
 
         private boolean randomSign()
@@ -187,12 +194,12 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
                 toDraw.remove(1);
                 //System.out.println("Worked");
-                speed =5;
+                speed++;
                 generateObject();
             }
          //   if(currentX - SpawnD >= SpawnX || SpawnX +SpawnD <= currentX || currentY - SpawnD >= SpawnY || SpawnY + SpawnD <= currentY) powerupSpawn();
 
-            }
+        }
 
     /*    public void powerupSpawn(){
             double Rand = Math.random();
@@ -200,7 +207,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
                     pExist=true;
                     generateObject();
                 }
-                else{
+                    else{
                     //System.out.println("No Spawn");
                     SpawnX = currentX;
                     SpawnY = currentY;
