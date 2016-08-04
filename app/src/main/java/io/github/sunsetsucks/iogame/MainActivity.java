@@ -400,11 +400,16 @@ public class MainActivity extends AppCompatActivity implements
                     beginGame(null);
                     break;
                 case "Square_update":
-                    Square square = new Square();
-                    square.translationX = ((Double) message.get("translationX")).floatValue();
-                    square.translationY = ((Double) message.get("translationY")).floatValue();
-                    square.name = (String) message.get("name");
-                    glView.putObject(square);
+                    if (glView.existsObject((String) message.get("name")))
+                    {
+                        glView.updateObject((String) message.get("name"), message);
+                    }
+                    else
+                    {
+                        Square square = new Square();
+                        square.from(message);
+                        glView.putObject(square);
+                    }
                     break;
                 default:
                     Log.e("iogame_networking", "unknown network command " + message.get("command"));

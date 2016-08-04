@@ -14,7 +14,7 @@ import io.github.sunsetsucks.iogame.network.message.MessageConvertible;
  */
 public abstract class GameObject implements MessageConvertible
 {
-    public float rotation;
+    public float rotation = 0f;
     public float translationX = 0f, translationY = 0f;
     public float scaleX = 1f, scaleY = 1f;
     public String name = null;

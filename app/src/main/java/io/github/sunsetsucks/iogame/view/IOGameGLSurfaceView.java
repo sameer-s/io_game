@@ -17,6 +17,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import io.github.sunsetsucks.iogame.Util;
+import io.github.sunsetsucks.iogame.network.message.Message;
 import io.github.sunsetsucks.iogame.shape.Color;
 import io.github.sunsetsucks.iogame.shape.GameObject;
 import io.github.sunsetsucks.iogame.shape.Shape;
@@ -100,14 +101,17 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
     public void putObject(GameObject obj)
     {
-        if (renderer.toDraw.containsKey(obj.name))
-        {
-            setShapeX_Y(obj.name, obj.translationX, obj.translationY);
-        } else
-        {
-            System.out.println("malahupitin");
-//            renderer.toDraw.put(obj);
-        }
+        renderer.toDraw.put(obj);
+    }
+
+    public boolean existsObject(String name)
+    {
+        return renderer.toDraw.containsKey(name);
+    }
+
+    public void updateObject(String name, Message update)
+    {
+        renderer.toDraw.get(name).from(update);
     }
 
     public static class Renderer implements GLSurfaceView.Renderer
