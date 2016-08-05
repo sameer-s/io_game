@@ -1,6 +1,5 @@
 package io.github.sunsetsucks.iogame.view;
 
-
 import android.content.Context;
 import android.graphics.Point;
 import android.opengl.GLES20;
@@ -11,16 +10,15 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 
-import static io.github.sunsetsucks.iogame.shape.GameObject.GameObjectMap;
-
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import io.github.sunsetsucks.iogame.Util;
 import io.github.sunsetsucks.iogame.shape.Color;
 import io.github.sunsetsucks.iogame.shape.GameObject;
-import io.github.sunsetsucks.iogame.shape.Shape;
 import io.github.sunsetsucks.iogame.shape.Square;
+
+import static io.github.sunsetsucks.iogame.shape.GameObject.GameObjectMap;
 
 /**
  * Created by ssuri on 7/25/16.
@@ -31,7 +29,6 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
     //    private static final String rand = UUID.randomUUID().toString();
     private static final String rand = "abcd";
-    public static int speed = 1;
 
 
     public IOGameGLSurfaceView(Context context)
@@ -53,6 +50,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
         setPreserveEGLContextOnPause(true);
 
+
         renderer = new Renderer();
 
         setRenderer(renderer);
@@ -70,21 +68,17 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
         float xScreen = e.getX();
         float yScreen = e.getY();
-        
         WindowManager wm = (WindowManager) Util.context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         int screenWidth = size.x, screenHeight = size.y;
 
-        startX = (renderer.toDraw.get("player" + rand).translationX);
-        startY = (renderer.toDraw.get("player" + rand).translationY);
+        startX = renderer.toDraw.get("player" + rand).translationX;
+        startY = renderer.toDraw.get("player" + rand).translationY;
 
-        targetX = ((xScreen)/ screenWidth) * -2.0f + 1.0f + renderer.cameraX;
-        targetY = ((yScreen)/ screenHeight)* -2.0f + 1.0f + renderer.cameraY;
-
-       float x = targetX;
-        float y = targetY;
+        float x = targetX = (xScreen / screenWidth) * -2.0f + 1.0f + renderer.cameraX;
+        float y = targetY = (yScreen / screenHeight) * -2.0f + 1.0f + renderer.cameraY;
 
 //        renderer.toDraw.get("player" + rand).translationX = x;
 //        renderer.toDraw.get("player" + rand).translationY = y;
@@ -115,22 +109,6 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
         return shader;
     }
-    public static float CurrentXPosition(float x2){
-        if(x2 <0.1 && x2>-0.1) x2=0;
-        if(x2 < -0.1 && x2>=-0.5) x2= -(float)(speed*(0.1));
-        if(x2<-0.5) x2= -(float)(speed*(2*0.1));
-        if(x2 >0.1 && x2<0.5) x2 =   (float)(speed*(0.1));
-        if(x2 >=0.5) x2 =   (float)(speed*(2*0.1));
-        return x2;
-    }
-    public static float CurrentYPosition(float y2){
-        if(y2 <0.1 && y2>-0.1) y2=0;
-        if(y2 < -0.1 && y2>=-0.5) y2= -(float)(speed*(0.1));
-        if(y2<-0.5) y2= -(float)(speed*(2*0.1));
-        if(y2 >0.1 && y2<0.5) y2 =   (float)(speed*(0.1));
-        if(y2 >=0.5) y2 =   (float)(speed*(2*0.1));
-        return y2;
-    }
 
     public class Renderer implements GLSurfaceView.Renderer
     {
@@ -141,19 +119,45 @@ public class IOGameGLSurfaceView extends GLSurfaceView
                 projectionMatrix = new float[16],
                 viewMatrix = new float[16];
 
+        public void generateObject() //hardcoded to a 30 x 30 board
+        {
+            float x, y;
+            x = (float) Math.random() * 15;
+            if(randomSign())
+                x = x * -1.0f;
+            y = (float) Math.random() * 15;
+            if(randomSign())
+                y = y * -1.0f;
+            toDraw.put(new Square(Util.loadBitmap("drawable/zorua")).setState(0f, x, y, 0.4f, 0.5f).setName("runner" + rand));
+        }
+
+        private boolean randomSign()
+        {
+            double sign = Math.random();
+            if(sign <= 0.5)
+                return true;
+            else
+                return false;
+        }
+
+        public boolean checkCollision(GameObject a, GameObject b) //check if two given objects collide
+        {
+            boolean aCollision = a.translationX + a.scaleX >= b.translationX && b.translationX + b.scaleX >= a.translationX;
+            boolean bCollision = a.translationY + a.scaleY >= b.translationY && b.translationY + b.scaleY >= a.translationY;
+            return aCollision && bCollision;
+        }
+
         public void onSurfaceCreated(GL10 unused, EGLConfig config)
         {
             float[] color = Color.SARCOLINE;
             GLES20.glClearColor(color[0], color[1], color[2], color[3]);
 
-            toDraw.put(new Square(Util.loadBitmap("drawable/psyduck")).setState(0f, 0f, 0f, .6f, .8f).setName("player" + rand));
-            toDraw.put(new Square(Util.loadBitmap("drawable/checkerboard")).setState(0f, 0f, -1f, 30f, 30f).setName("background" + rand));
+            toDraw.put(new Square(Util.loadBitmap("drawable/sanic")).setState(0f, 0f, 0f, 1f, 1f).setName("player" + rand));
+            generateObject();
+            toDraw.put(new Square(Util.loadBitmap("drawable/grid")).setState(0f, 0f, -1f, 30f, 30f).setName("background" + rand));
         }
 
         private long lastTime = -1;
-
-
-
         public void onDrawFrame(GL10 unused)
         {
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
@@ -179,31 +183,19 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
                     percent = 1; // FIXME interpolation disabled since it doesn't work
 
-                    float movX =  (targetX-startX);
-                    float movY =  (targetY-startY);
-
-                    movX = CurrentXPosition(movX);
-                    movY = CurrentYPosition(movY);
-
-                    System.out.println(movX+","+movY);
-
-                    float playerX = startX + movX;
-                    float playerY = startY + movY;
-
-                    //Border Code
-                    if(playerX >= 15) playerX =15;
-                    if(playerY >= 13.6) playerY = (float)(13.6);
-                    if(playerX <= -15) playerX = -15;
-                    if(playerY <= -15.7) playerY = (float)-15.7;
+                    float playerX = startX + (percent * (targetX - startX));
+                    float playerY = startY + (percent * (targetY - startY));
 
                     player.translationX = playerX;
                     player.translationY = playerY;
 
-                    if(percent == 1) {
+                    if(percent == 1)
+                    {
                         startX = playerX;
                         startY = playerY;
                     }
                 }
+
             }
             lastTime = thisTime;
 
@@ -227,8 +219,13 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 //                    Util.broadcastMessage(go);
                 }
             }
-        }
 
+            if(checkCollision(toDraw.get("player" + rand), toDraw.get("runner" + rand))) //should probably not hardcode index 1?
+            {
+                toDraw.remove("runner" + rand);
+                generateObject();
+            }
+        }
 
         public void onSurfaceChanged(GL10 unused, int width, int height)
         {
