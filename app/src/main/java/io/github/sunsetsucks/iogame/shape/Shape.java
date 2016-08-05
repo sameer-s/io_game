@@ -3,8 +3,6 @@ package io.github.sunsetsucks.iogame.shape;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
-import com.google.gson.annotations.Expose;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -22,8 +20,12 @@ public abstract class Shape extends GameObject
     private ShortBuffer drawListBuffer;
 
     // Default shaders
-    private static final int vertexShader = IOGameGLSurfaceView.Renderer.loadShader(GLES20.GL_VERTEX_SHADER, "uniform mat4 uMVPMatrix;attribute vec4 vPosition;void main() {  gl_Position = uMVPMatrix * vPosition;}");
-    private static final int fragmentShader = IOGameGLSurfaceView.Renderer.loadShader(GLES20.GL_FRAGMENT_SHADER, "precision mediump float;uniform vec4 vColor;void main() {  gl_FragColor = vColor;}");
+//    private static final int vertexShader = IOGameGLSurfaceView.Renderer.loadShader(GLES20.GL_VERTEX_SHADER, "uniform mat4 uMVPMatrix;attribute vec4 vPosition;void main() {  gl_Position = uMVPMatrix * vPosition;}");
+//    private static final int fragmentShader = IOGameGLSurfaceView.Renderer.loadShader(GLES20.GL_FRAGMENT_SHADER, "precision mediump float;uniform vec4 vColor;void main() {  gl_FragColor = vColor;}");
+
+    // Texture shaders
+    private static final int vertexShader = IOGameGLSurfaceView.Renderer.loadShader(GLES20.GL_VERTEX_SHADER, "attribute vec4 position; attribute vec4 inputTextureCoordinate; varying vec2 textureCoordinate; void main() { gl_Position = position; textureCoordinate = inputTextureCoordinate.xy; }");
+    private static final int fragmentShader = IOGameGLSurfaceView.Renderer.loadShader(GLES20.GL_VERTEX_SHADER, "varying highp vec2 textureCoordinate; uniform sampler2D videoFrame; void main() { gl_FragColor = texture2D(videoFrame, textureCoordinate); }");
 
     private final int vertexCount = getCoords().length / 3; // 3 coordinates per vertex
     private final int vertexStride = 3 * 4; // 3 coordinates per vertex, 4 bytes per vertex
@@ -32,8 +34,7 @@ public abstract class Shape extends GameObject
 
     public abstract float[] getCoords();
     public abstract short[] getDrawOrder();
-
-    @Expose
+    public abstract float[] getTextureCoords();
     public float[] color = Color.RED;
 
     public Shape()

@@ -2,8 +2,6 @@ package io.github.sunsetsucks.iogame.shape;
 
 import android.opengl.Matrix;
 
-import com.google.gson.annotations.Expose;
-
 import java.util.HashMap;
 
 
@@ -13,12 +11,12 @@ import java.util.HashMap;
  */
 public abstract class GameObject
 {
-    @Expose public float rotation = 0f;
-    @Expose public float translationX = 0f;
-    @Expose public float translationY = 0f;
-    @Expose public float scaleX = 1f;
-    @Expose public float scaleY = 1f;
-    @Expose public String name = null;
+    public float rotation = 0f;
+    public float translationX = 0f;
+    public float translationY = 0f;
+    public float scaleX = 1f;
+    public float scaleY = 1f;
+    public String name = null;
 
     public GameObject setState(float rotation, float translationX, float translationY, float scaleX, float scaleY)
     {
@@ -65,5 +63,26 @@ public abstract class GameObject
         {
             put(obj.name, obj);
         }
+    }
+
+    public byte[] updateMessage()
+    {
+        /*
+
+        Code | Name          | Bits     | Total Bits
+        -----|---------------|----------|-------------
+        A    | Action        | 4        | 4
+        B    | Scale X       | 4        | 8
+        C    | Scale Y       | 4        | 12
+        D    | Translation X | 12       | 24
+        E    | Translation Y | 11       | 35
+        F    | Rotation      | 9        | 44
+        G    | Player Origin | 4        | 48
+        H    | Object ID     | 8        | 56
+
+         */
+
+
+        return null;
     }
 }

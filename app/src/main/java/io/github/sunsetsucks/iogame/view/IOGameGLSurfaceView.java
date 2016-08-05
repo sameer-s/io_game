@@ -47,7 +47,6 @@ public class IOGameGLSurfaceView extends GLSurfaceView
     }
 
 
-
     private void init(Context context)
     {
         this.context = context;
@@ -67,7 +66,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
     public boolean onTouchEvent(MotionEvent e)
     {
         //TODO remove
-        if(!Util.isHost) return true;
+        if (!Util.isHost) return true;
 
         float xScreen = e.getX();
         float yScreen = e.getY();
@@ -77,11 +76,11 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         display.getSize(size);
         int screenWidth = size.x, screenHeight = size.y;
 
-        float x = (xScreen / screenWidth) * -2.0f + 1.0f;
-        float y = (yScreen / screenHeight) * -2.0f + 1.0f;
+        float x = (xScreen / screenWidth) * -2.0f + 1.0f + renderer.cameraX;
+        float y = (yScreen / screenHeight) * -2.0f + 1.0f + renderer.cameraY;
 
-        renderer.toDraw.get("player" + rand).translationX = x;
-        renderer.toDraw.get("player" + rand).translationY = y;
+        renderer.cameraX = renderer.toDraw.get("player" + rand).translationX = x;
+        renderer.cameraY = renderer.toDraw.get("player" + rand).translationY = y;
 
         return true;
     }
@@ -103,6 +102,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
     public static class Renderer implements GLSurfaceView.Renderer
     {
         public GameObjectMap toDraw = new GameObjectMap();
+        private float cameraX = 0f, cameraY = 1f;
 
         private final float[] mvpMatrix = new float[16], // model view projection
                 projectionMatrix = new float[16],
@@ -120,7 +120,17 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         {
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
-            Matrix.setLookAtM(viewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+            // ORIGINAL:
+//            Matrix.setLookAtM(viewMatrix, 0,
+//                    /* eye    */ 0, 0, -3,
+//                    /* center */ 0f, 0f, 0f,
+//                    /* up     */ 0f, 1.0f, 0.0f);
+
+            Matrix.setLookAtM(viewMatrix, 0,
+                    /* eye    */ cameraX, cameraY, -3f,
+                    /* center */ cameraX, cameraY, 0f,
+                    /* up     */ 0f, 1f, 0f);
+
             Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
             for (String s : toDraw.keySet())

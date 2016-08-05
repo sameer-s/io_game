@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements
 		view.setVisibility(View.GONE);
 		((ViewGroup) view.getParent()).findViewById(R.id.button_discover)
 				.setVisibility(View.VISIBLE);
-		beginGameButton.setVisibility(View.GONE);
+		beginGameButton.setVisibility(View.VISIBLE);
 		deviceList.setVisibility(View.VISIBLE);
 
 		manager.removeGroup(channel, new WifiP2pManager.ActionListener()

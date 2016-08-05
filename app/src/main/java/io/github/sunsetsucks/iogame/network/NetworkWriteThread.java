@@ -23,12 +23,10 @@ public class NetworkWriteThread extends Thread
         this.socket = socket;
     }
 
-    private ObjectOutputStream out;
-
     @Override
     public void run()
     {
-
+        ObjectOutputStream out;
         while (true)
         {
             try

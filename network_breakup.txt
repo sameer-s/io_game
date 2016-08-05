@@ -1,0 +1,13 @@
+64 bits|
+--------
+
+Code | Name          | Bits     | Total Bits
+-----|---------------|----------|-------------
+A    | Action        | 4        | 4
+B    | Scale X       | 4        | 8
+C    | Scale Y       | 4        | 12
+D    | Translation X | 12       | 24
+E    | Translation Y | 11       | 35
+F    | Rotation      | 9        | 44
+G    | Player Origin | 4        | 48
+H    | Object ID     | 8        | 56
