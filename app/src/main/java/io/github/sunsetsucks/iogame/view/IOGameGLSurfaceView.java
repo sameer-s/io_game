@@ -60,6 +60,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
     }
 
 
+    private float startX = 0, startY = 0;
+    private float targetX = 0, targetY = 0;
     @Override
     public boolean onTouchEvent(MotionEvent e)
     {
@@ -74,11 +76,14 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         display.getSize(size);
         int screenWidth = size.x, screenHeight = size.y;
 
-        float x = (xScreen / screenWidth) * -2.0f + 1.0f + renderer.cameraX;
-        float y = (yScreen / screenHeight) * -2.0f + 1.0f + renderer.cameraY;
+        startX = renderer.toDraw.get("player" + rand).translationX;
+        startY = renderer.toDraw.get("player" + rand).translationY;
 
-        renderer.cameraX = renderer.toDraw.get("player" + rand).translationX = x;
-        renderer.cameraY = renderer.toDraw.get("player" + rand).translationY = y;
+        float x = targetX = (xScreen / screenWidth) * -2.0f + 1.0f + renderer.cameraX;
+        float y = targetY = (yScreen / screenHeight) * -2.0f + 1.0f + renderer.cameraY;
+
+//        renderer.toDraw.get("player" + rand).translationX = x;
+//        renderer.toDraw.get("player" + rand).translationY = y;
 
         return true;
     }
@@ -97,7 +102,17 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         renderer.toDraw.get(name).translationY = y;
     }
 
-    public static class Renderer implements GLSurfaceView.Renderer
+    public static int loadShader(int type, String shaderCode)
+    {
+        int shader = GLES20.glCreateShader(type);
+
+        GLES20.glShaderSource(shader, shaderCode);
+        GLES20.glCompileShader(shader);
+
+        return shader;
+    }
+
+    public class Renderer implements GLSurfaceView.Renderer
     {
         public GameObjectMap toDraw = new GameObjectMap();
         private float cameraX = 0f, cameraY = 0f;
@@ -111,10 +126,11 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             float[] color = Color.SARCOLINE;
             GLES20.glClearColor(color[0], color[1], color[2], color[3]);
 
-            toDraw.put(((Shape) new Square().setState(0f, 0f, 0f, 1f, 1f)).setColor(Color.randomColor(rand)).setName("player" + rand));
-            toDraw.put(new Square(Util.loadBitmap("drawable/grid")).setState(0f, 0f, 0f, 16f, 16f).setName("background" + rand));
+            toDraw.put(new Square(Util.loadBitmap("drawable/psyduck")).setState(0f, 0f, 0f, 1f, 1f).setName("player" + rand));
+            toDraw.put(new Square(Util.loadBitmap("drawable/grid")).setState(0f, 0f, -1f, 16f, 16f).setName("background" + rand));
         }
 
+        private long lastTime = -1;
         public void onDrawFrame(GL10 unused)
         {
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
@@ -124,6 +140,40 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 //                    /* eye    */ 0, 0, -3,
 //                    /* center */ 0f, 0f, 0f,
 //                    /* up     */ 0f, 1.0f, 0.0f);
+
+            GameObject player = toDraw.get("player" + rand);
+
+            long thisTime = System.nanoTime();
+            if(lastTime != -1)
+            {
+                float tpf = (thisTime - lastTime) / 1_000_000_000f;
+
+                tpf /= 2; // speed control
+
+                if(targetX - startX != 0)
+                {
+                    float percent = Math.max((player.translationX - startX) / (targetX - startX) + tpf, 1);
+
+                    percent = 1; // FIXME interpolation disabled since it doesn't work
+
+                    float playerX = startX + (percent * (targetX - startX));
+                    float playerY = startY + (percent * (targetY - startY));
+
+                    player.translationX = playerX;
+                    player.translationY = playerY;
+
+                    if(percent == 1)
+                    {
+                        startX = playerX;
+                        startY = playerY;
+                    }
+                }
+
+            }
+            lastTime = thisTime;
+
+            cameraX = player.translationX;
+            cameraY = player.translationY;
 
             Matrix.setLookAtM(viewMatrix, 0,
                     /* eye    */ cameraX, cameraY, -3f,
@@ -153,16 +203,5 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             // apply the projection matrix
             Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
         }
-
-        public static int loadShader(int type, String shaderCode)
-        {
-            int shader = GLES20.glCreateShader(type);
-
-            GLES20.glShaderSource(shader, shaderCode);
-            GLES20.glCompileShader(shader);
-
-            return shader;
-        }
-
     }
 }

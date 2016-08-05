@@ -23,15 +23,17 @@ public abstract class Shape extends GameObject
     private FloatBuffer uvBuffer;
 
     // Default shaders
-    private static final int vertexShader = IOGameGLSurfaceView.Renderer.loadShader(GLES20.GL_VERTEX_SHADER, "uniform mat4 uMVPMatrix;attribute vec4 vPosition;void main() {  gl_Position = uMVPMatrix * vPosition;}");
-    private static final int fragmentShader = IOGameGLSurfaceView.Renderer.loadShader(GLES20.GL_FRAGMENT_SHADER, "precision mediump float;uniform vec4 vColor;void main() {  gl_FragColor = vColor;}");
+    private static final int vertexShader = IOGameGLSurfaceView.loadShader(GLES20.GL_VERTEX_SHADER, "uniform mat4 uMVPMatrix;attribute vec4 vPosition;void main() {  gl_Position = uMVPMatrix * vPosition;}");
+    private static final int fragmentShader = IOGameGLSurfaceView.loadShader(GLES20.GL_FRAGMENT_SHADER, "precision mediump float;uniform vec4 vColor;void main() {  gl_FragColor = vColor;}");
 
     // Texture shaders
-    private static final int vertexShaderT = IOGameGLSurfaceView.Renderer.loadShader(GLES20.GL_VERTEX_SHADER, "uniform mat4 uMVPMatrix;attribute vec4 vPosition;attribute vec2 a_texCoord;varying vec2 v_texCoord;void main() {  gl_Position = uMVPMatrix * vPosition;  v_texCoord = a_texCoord;}");
-    private static final int fragmentShaderT = IOGameGLSurfaceView.Renderer.loadShader(GLES20.GL_FRAGMENT_SHADER, "precision mediump float;varying vec2 v_texCoord;uniform sampler2D s_texture;void main() {  gl_FragColor = texture2D( s_texture, v_texCoord );}");
+    private static final int vertexShaderT = IOGameGLSurfaceView.loadShader(GLES20.GL_VERTEX_SHADER, "uniform mat4 uMVPMatrix;attribute vec4 vPosition;attribute vec2 a_texCoord;varying vec2 v_texCoord;void main() {  gl_Position = uMVPMatrix * vPosition;  v_texCoord = a_texCoord;}");
+    private static final int fragmentShaderT = IOGameGLSurfaceView.loadShader(GLES20.GL_FRAGMENT_SHADER, "precision mediump float;varying vec2 v_texCoord;uniform sampler2D s_texture;void main() {  gl_FragColor = texture2D( s_texture, v_texCoord );}");
 
     private final int vertexCount = getCoords().length / 3; // 3 coordinates per vertex
     private static final int VERTEX_STRIDE = 3 * 4; // 3 coordinates per vertex, 4 bytes per vertex
+
+    private int[] textureNames;
 
     private int glProgram;
     private Bitmap texture;
@@ -77,7 +79,7 @@ public abstract class Shape extends GameObject
         // Texture
         if(texture != null)
         {
-            int[] textureNames = new int[1];
+            textureNames = new int[1];
             GLES20.glGenTextures(1, textureNames, 0);
 
             GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -137,6 +139,8 @@ public abstract class Shape extends GameObject
         // Texture
         if(texture != null)
         {
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureNames[0]);
+
             int texCoordHandle = GLES20.glGetAttribLocation(glProgram, "a_texCoord");
             GLES20.glEnableVertexAttribArray(texCoordHandle);
             GLES20.glVertexAttribPointer(texCoordHandle, 2, GLES20.GL_FLOAT, false, 0, uvBuffer);
