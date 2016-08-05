@@ -191,7 +191,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
                     if(playerY >= 13.6) playerY = (float)(13.6);
                     if(playerX <= -15) playerX = -15;
                     if(playerY <= -15.7) playerY = (float)-15.7;
-                    
+
                     player.translationX = playerX;
                     player.translationY = playerY;
 
