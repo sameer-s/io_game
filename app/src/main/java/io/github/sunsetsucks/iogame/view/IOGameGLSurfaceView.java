@@ -31,7 +31,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
     //    private static final String rand = UUID.randomUUID().toString();
     private static final String rand = "abcd";
-    public static int speed = 3;
+    public static int speed = 1;
 
 
     public IOGameGLSurfaceView(Context context)
@@ -116,13 +116,15 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         return shader;
     }
     public static float CurrentXPosition(float x2){
-        if(x2 < -0.1 && x2>=-0.5) x2= (float)(speed*(0.1));
-        if(x2<-0.5) x2= (float)(speed*(2*0.1));
-        if(x2 >0.1 && x2<0.5) x2 =  - (float)(speed*(0.1));
-        if(x2 >=0.5) x2 =  - (float)(speed*(2*0.1));
+        if(x2 <0.1 && x2>-0.1) x2=0;
+        if(x2 < -0.1 && x2>=-0.5) x2= -(float)(speed*(0.1));
+        if(x2<-0.5) x2= -(float)(speed*(2*0.1));
+        if(x2 >0.1 && x2<0.5) x2 =   (float)(speed*(0.1));
+        if(x2 >=0.5) x2 =   (float)(speed*(2*0.1));
         return x2;
     }
     public static float CurrentYPosition(float y2){
+        if(y2 <0.1 && y2>-0.1) y2=0;
         if(y2 < -0.1 && y2>=-0.5) y2= -(float)(speed*(0.1));
         if(y2<-0.5) y2= -(float)(speed*(2*0.1));
         if(y2 >0.1 && y2<0.5) y2 =   (float)(speed*(0.1));
@@ -182,6 +184,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
                     movX = CurrentXPosition(movX);
                     movY = CurrentYPosition(movY);
+
+                    System.out.println(movX+","+movY);
 
                     float playerX = startX + movX;
                     float playerY = startY + movY;
