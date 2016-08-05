@@ -1,6 +1,5 @@
 package io.github.sunsetsucks.iogame.view;
 
-
 import android.content.Context;
 import android.graphics.Point;
 import android.opengl.GLES20;
@@ -11,16 +10,15 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 
-import static io.github.sunsetsucks.iogame.shape.GameObject.GameObjectMap;
-
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import io.github.sunsetsucks.iogame.Util;
 import io.github.sunsetsucks.iogame.shape.Color;
 import io.github.sunsetsucks.iogame.shape.GameObject;
-import io.github.sunsetsucks.iogame.shape.Shape;
 import io.github.sunsetsucks.iogame.shape.Square;
+
+import static io.github.sunsetsucks.iogame.shape.GameObject.GameObjectMap;
 
 /**
  * Created by ssuri on 7/25/16.
@@ -121,13 +119,42 @@ public class IOGameGLSurfaceView extends GLSurfaceView
                 projectionMatrix = new float[16],
                 viewMatrix = new float[16];
 
+        public void generateObject() //hardcoded to a 30 x 30 board
+        {
+            float x, y;
+            x = (float) Math.random() * 15;
+            if(randomSign())
+                x = x * -1.0f;
+            y = (float) Math.random() * 15;
+            if(randomSign())
+                y = y * -1.0f;
+            toDraw.put(new Square(Util.loadBitmap("drawable/zorua")).setState(0f, x, y, 0.4f, 0.5f).setName("runner" + rand));
+        }
+
+        private boolean randomSign()
+        {
+            double sign = Math.random();
+            if(sign <= 0.5)
+                return true;
+            else
+                return false;
+        }
+
+        public boolean checkCollision(GameObject a, GameObject b) //check if two given objects collide
+        {
+            boolean aCollision = a.translationX + a.scaleX >= b.translationX && b.translationX + b.scaleX >= a.translationX;
+            boolean bCollision = a.translationY + a.scaleY >= b.translationY && b.translationY + b.scaleY >= a.translationY;
+            return aCollision && bCollision;
+        }
+
         public void onSurfaceCreated(GL10 unused, EGLConfig config)
         {
             float[] color = Color.SARCOLINE;
             GLES20.glClearColor(color[0], color[1], color[2], color[3]);
 
-            toDraw.put(new Square(Util.loadBitmap("drawable/psyduck")).setState(0f, 0f, 0f, 1f, 1f).setName("player" + rand));
-            toDraw.put(new Square(Util.loadBitmap("drawable/grid")).setState(0f, 0f, -1f, 16f, 16f).setName("background" + rand));
+            toDraw.put(new Square(Util.loadBitmap("drawable/sanic")).setState(0f, 0f, 0f, 1f, 1f).setName("player" + rand));
+            generateObject();
+            toDraw.put(new Square(Util.loadBitmap("drawable/grid")).setState(0f, 0f, -1f, 30f, 30f).setName("background" + rand));
         }
 
         private long lastTime = -1;
@@ -191,6 +218,12 @@ public class IOGameGLSurfaceView extends GLSurfaceView
                 {
 //                    Util.broadcastMessage(go);
                 }
+            }
+
+            if(checkCollision(toDraw.get("player" + rand), toDraw.get("runner" + rand))) //should probably not hardcode index 1?
+            {
+                toDraw.remove("runner" + rand);
+                generateObject();
             }
         }
 

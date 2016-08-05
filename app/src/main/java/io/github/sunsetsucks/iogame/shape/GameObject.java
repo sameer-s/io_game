@@ -59,10 +59,7 @@ public abstract class GameObject
 
     public static class GameObjectMap extends HashMap<String, GameObject>
     {
-        public void put(GameObject obj)
-        {
-            put(obj.name, obj);
-        }
+        public void put(GameObject obj) { put(obj.name, obj); }
     }
 
     public byte[] updateMessage()
