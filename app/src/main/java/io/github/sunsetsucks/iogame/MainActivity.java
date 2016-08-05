@@ -116,6 +116,11 @@ public class MainActivity extends AppCompatActivity implements
 
 		receiver = new IOGameBroadcastReceiver();
 		registerReceiver(receiver, intentFilter);
+
+		if(glView != null)
+		{
+			glView.onResume();
+		}
 	}
 
 	@Override
@@ -123,6 +128,11 @@ public class MainActivity extends AppCompatActivity implements
 	{
 		super.onPause();
 		unregisterReceiver(receiver);
+
+		if(glView != null)
+		{
+			glView.onPause();
+		}
 	}
 
 	@Override

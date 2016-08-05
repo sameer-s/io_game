@@ -1,11 +1,23 @@
 package io.github.sunsetsucks.iogame.shape;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by ssuri on 7/25/16.
  *
  */
 public class Square extends Shape
 {
+    public Square()
+    {
+        super();
+    }
+
+    public Square(Bitmap texture)
+    {
+        super(texture);
+    }
+
     @Override
     public float[] getCoords()
     {
@@ -22,5 +34,16 @@ public class Square extends Shape
     public short[] getDrawOrder()
     {
         return new short[] { 0, 1, 2, 0, 2, 3 };
+    }
+
+    @Override
+    public float[] getUVs()
+    {
+        return new float[] {
+                0, 0,
+                0, 1,
+                1, 1,
+                1, 0,
+        };
     }
 }

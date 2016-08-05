@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.util.Log;
 import android.widget.Toast;
@@ -94,4 +96,10 @@ public class Util
 //
 //        ((MessageBroadcaster) context).broadcastMessage(messageConvertible);
 //    }
+
+    public static Bitmap loadBitmap(String path)
+    {
+        int id = context.getResources().getIdentifier(path, null, context.getPackageName());
+        return BitmapFactory.decodeResource(context.getResources(), id);
+    }
 }

@@ -28,7 +28,6 @@ import io.github.sunsetsucks.iogame.shape.Square;
 public class IOGameGLSurfaceView extends GLSurfaceView
 {
     public Renderer renderer;
-    private Context context;
 
     //    private static final String rand = UUID.randomUUID().toString();
     private static final String rand = "abcd";
@@ -37,23 +36,22 @@ public class IOGameGLSurfaceView extends GLSurfaceView
     public IOGameGLSurfaceView(Context context)
     {
         super(context);
-        init(context);
+        init();
     }
 
     public IOGameGLSurfaceView(Context context, AttributeSet attrs)
     {
         super(context, attrs);
-        init(context);
+        init();
     }
 
 
-    private void init(Context context)
+    private void init()
     {
-        this.context = context;
-
         setEGLContextClientVersion(2);
 
         setPreserveEGLContextOnPause(true);
+
 
         renderer = new Renderer();
 
@@ -70,7 +68,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
         float xScreen = e.getX();
         float yScreen = e.getY();
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        WindowManager wm = (WindowManager) Util.context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -102,7 +100,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
     public static class Renderer implements GLSurfaceView.Renderer
     {
         public GameObjectMap toDraw = new GameObjectMap();
-        private float cameraX = 0f, cameraY = 1f;
+        private float cameraX = 0f, cameraY = 0f;
 
         private final float[] mvpMatrix = new float[16], // model view projection
                 projectionMatrix = new float[16],
@@ -113,7 +111,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             float[] color = Color.SARCOLINE;
             GLES20.glClearColor(color[0], color[1], color[2], color[3]);
 
-            toDraw.put(((Shape) new Square().setState(0f, .5f, .25f, 1f, 1f)).setColor(Color.randomColor(rand)).setName("player" + rand));
+            toDraw.put(((Shape) new Square().setState(0f, 0f, 0f, 1f, 1f)).setColor(Color.randomColor(rand)).setName("player" + rand));
+            toDraw.put(new Square(Util.loadBitmap("drawable/grid")).setState(0f, 0f, 0f, 16f, 16f).setName("background" + rand));
         }
 
         public void onDrawFrame(GL10 unused)
