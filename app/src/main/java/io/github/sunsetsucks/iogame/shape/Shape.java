@@ -30,7 +30,6 @@ public abstract class Shape extends GameObject
     private static final int vertexShaderT = IOGameGLSurfaceView.loadShader(GLES20.GL_VERTEX_SHADER, "uniform mat4 uMVPMatrix;attribute vec4 vPosition;attribute vec2 a_texCoord;varying vec2 v_texCoord;void main() {  gl_Position = uMVPMatrix * vPosition;  v_texCoord = a_texCoord;}");
     private static final int fragmentShaderT = IOGameGLSurfaceView.loadShader(GLES20.GL_FRAGMENT_SHADER, "precision mediump float;varying vec2 v_texCoord;uniform sampler2D s_texture;void main() {  gl_FragColor = texture2D( s_texture, v_texCoord );}");
 
-    private final int vertexCount = getCoords().length / 3; // 3 coordinates per vertex
     private static final int VERTEX_STRIDE = 3 * 4; // 3 coordinates per vertex, 4 bytes per vertex
 
     private int[] textureNames;
@@ -139,6 +138,9 @@ public abstract class Shape extends GameObject
         // Texture
         if(texture != null)
         {
+            GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+            GLES20.glEnable(GLES20.GL_BLEND);
+
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureNames[0]);
 
             int texCoordHandle = GLES20.glGetAttribLocation(glProgram, "a_texCoord");
@@ -178,6 +180,7 @@ public abstract class Shape extends GameObject
         if(texture != null)
         {
             GLES20.glDisableVertexAttribArray(textureSampleHandle);
+            GLES20.glDisable(GLES20.GL_BLEND);
         }
     }
 }
