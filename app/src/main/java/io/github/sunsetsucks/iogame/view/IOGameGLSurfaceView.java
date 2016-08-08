@@ -30,7 +30,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 {
 	public Renderer renderer;
 
-	private static final float SPEED = 2.0f;
+	private static float SPEED = 2.0f;
 
 	// private static final String rand = UUID.randomUUID().toString();
 	private static final String rand = "abcd";
@@ -89,8 +89,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 			targetY = (yScreen / screenHeight) * -2.0f + 1.0f
 					+ renderer.cameraY;
 
-			targetX = Util.clamp(targetX, -15, 15);
-			targetY = Util.clamp(targetY, -15.7f, 13.6f);
+			targetX = Util.clamp(targetX, -14.6f, 15);
+			targetY = Util.clamp(targetY, -15.7f, 13.7f);
 
 			lastEvent = e;
 
@@ -127,6 +127,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 			y = (float) Math.random() * 15;
 			if (r.nextBoolean())
 				y = y * -1.0f;
+
+			double ran = 20;
 			toDraw.put(new Square(Util.loadBitmap("drawable/zorua"))
 					.setState(0f, x, y, 0.4f, 0.5f).setName("runner" + rand));
 		}
@@ -180,8 +182,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 					playerX = (playerX + (ratio * (targetX - playerX)));
 					playerY = (playerY + (ratio * (targetY - playerY)));
 
-					playerX = Util.clamp(playerX, -15, 15);
-					playerY = Util.clamp(playerY, -15.7f, 13.6f);
+					playerX = Util.clamp(playerX, -15, 14.5f);
+					playerY = Util.clamp(playerY, -15.5f, 13.6f);
 
 					cameraX = player.translationX = playerX;
 					cameraY = player.translationY = playerY;
