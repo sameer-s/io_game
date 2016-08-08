@@ -8,6 +8,7 @@ import java.net.DatagramSocket;
 
 import io.github.sunsetsucks.iogame.Util;
 
+
 /**
  * Created by ssuri on 8/2/16.
  */
@@ -33,10 +34,13 @@ public class UDPReadThread extends Thread
         {
             while (!socket.isClosed())
             {
-                byte[] buffer = new byte[8];
+                byte[] buffer = new byte[Util.DATAGRAM_SIZE];
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
+                Log.d("iogame_debug", "ready to recieve packet len=" + buffer.length); // FIXME: 8/8/16
                 socket.receive(packet);
+
+                Log.d("iogame_debug", "received packet"); // FIXME: 8/8/16
 
                 handler.receiveUDPMessage(packet.getData());
             }

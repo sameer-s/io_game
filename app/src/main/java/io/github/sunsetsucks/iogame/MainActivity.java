@@ -30,7 +30,6 @@ import android.widget.ViewAnimator;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -189,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements
 		else
 		{
 			Toast.makeText(this,
-					"Severe! Channel is probably lost premanently. Try Disable/Re-Enable P2P.",
+					"Severe! Channel is probably lost permanently. Try Disable/Re-Enable P2P.",
 					Toast.LENGTH_LONG).show();
 		}
 	}
@@ -238,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements
                 }
             };
             t.start();
-		}
+        }
 	}
 
 	public void host(View view)
@@ -306,7 +305,8 @@ public class MainActivity extends AppCompatActivity implements
         {
             // TODO Reimplement
             broadcastMessage("begin", true);
-            for(byte i = 0; i < 64; i++)
+
+			for(byte i = -128; i < 127; i++)
             {
                 broadcastMessage(new byte[] {i, i, i, i, i, i, i, i}, false);
             }

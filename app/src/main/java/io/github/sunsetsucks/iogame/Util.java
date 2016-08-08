@@ -18,6 +18,7 @@ import java.io.Serializable;
 public class Util
 {
 	public static final int PORT = 54362;
+    public static final int DATAGRAM_SIZE = 9; // in bytes
 
 	public static Context context = null;
 
