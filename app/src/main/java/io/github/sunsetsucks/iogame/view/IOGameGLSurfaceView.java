@@ -30,7 +30,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 {
 	public Renderer renderer;
 
-	private static final float SPEED = 1.2f;
+	private static final float SPEED = 2.0f;
 
 	// private static final String rand = UUID.randomUUID().toString();
 	private static final String rand = "abcd";
@@ -60,17 +60,23 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 	}
 
 	private float targetX = 0, targetY = 0;
+
+	private MotionEvent lastEvent;
 	@Override
 	public boolean onTouchEvent(@NonNull MotionEvent e)
 	{
+
+
 		// TODO remove
 		if (!Util.isHost)
 			return true;
 
-		if(e.getActionMasked() == MotionEvent.ACTION_DOWN)
+		if(e.getActionMasked() == MotionEvent.ACTION_DOWN  || e.getActionMasked() == MotionEvent.ACTION_MOVE)
 		{
+
 			float xScreen = e.getX();
 			float yScreen = e.getY();
+
 			WindowManager wm = (WindowManager) Util.context
 					.getSystemService(Context.WINDOW_SERVICE);
 			Display display = wm.getDefaultDisplay();
@@ -85,6 +91,9 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
 			targetX = Util.clamp(targetX, -15, 15);
 			targetY = Util.clamp(targetY, -15.7f, 13.6f);
+
+			lastEvent = e;
+
 		}
 		return true;
 	}
@@ -176,6 +185,9 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
 					cameraX = player.translationX = playerX;
 					cameraY = player.translationY = playerY;
+				}
+				else if (lastEvent != null){
+					onTouchEvent(lastEvent);
 				}
 			}
 			lastTime = thisTime;
