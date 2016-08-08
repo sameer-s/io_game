@@ -139,6 +139,9 @@ public abstract class Shape extends GameObject
         // Texture
         if(texture != null)
         {
+            GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+            GLES20.glEnable(GLES20.GL_BLEND);
+
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureNames[0]);
 
             int texCoordHandle = GLES20.glGetAttribLocation(glProgram, "a_texCoord");
@@ -178,6 +181,7 @@ public abstract class Shape extends GameObject
         if(texture != null)
         {
             GLES20.glDisableVertexAttribArray(textureSampleHandle);
+            GLES20.glDisable(GLES20.GL_BLEND);
         }
     }
 }
