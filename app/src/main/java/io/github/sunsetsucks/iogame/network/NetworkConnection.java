@@ -5,6 +5,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 
@@ -18,7 +19,7 @@ public class NetworkConnection
     private UDPWriteThread udpWrite;
     private TCPWriteThread tcpWrite;
     private Socket socket;
-    private DatagramSocket dSocket;
+    private DatagramSocket dSocketRead, dSocketWrite;
 
     public NetworkConnection(Socket socket, NetworkHandler handler)
     {
@@ -26,12 +27,21 @@ public class NetworkConnection
 
         try
         {
-            dSocket = new DatagramSocket(Util.PORT);
-            dSocket.connect(socket.getRemoteSocketAddress());
+            dSocketRead = new DatagramSocket(Util.PORT);
         }
         catch (SocketException e)
         {
-            Log.e("iogame_networking", "An error occurred initializing the datagram socket");
+            Log.e("iogame_networking", "An error occurred initializing the datagram socket (read)");
+        }
+
+        try
+        {
+            dSocketWrite = new DatagramSocket();
+            dSocketWrite.connect(new InetSocketAddress(socket.getInetAddress(), Util.PORT));
+        }
+        catch (SocketException e)
+        {
+            Log.e("iogame_networking", "An error occurred initializing the datagram socket (write)");
         }
 
         // TCP
@@ -44,10 +54,10 @@ public class NetworkConnection
         tcpWrite.start();
 
         // UDP
-        UDPReadThread udpRead = new UDPReadThread(dSocket);
+        UDPReadThread udpRead = new UDPReadThread(dSocketRead);
         udpRead.setHandler(handler);
 
-        udpWrite = new UDPWriteThread(dSocket);
+        udpWrite = new UDPWriteThread(dSocketWrite);
 
         udpRead.start();
         udpWrite.start();
@@ -70,7 +80,8 @@ public class NetworkConnection
         try
         {
             socket.close();
-            dSocket.close();
+            dSocketRead.close();
+            dSocketWrite.close();
         }
         catch (IOException e)
         {
