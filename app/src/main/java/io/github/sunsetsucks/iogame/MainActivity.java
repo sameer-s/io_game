@@ -30,9 +30,11 @@ import android.widget.ViewAnimator;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 
 import io.github.sunsetsucks.iogame.network.NetworkConnection;
@@ -222,7 +224,8 @@ public class MainActivity extends AppCompatActivity implements
                 {
                     try
                     {
-                        Socket socket = new Socket(wifiP2pInfo.groupOwnerAddress, Util.PORT);
+                        Socket socket = new Socket();
+                        socket.connect(new InetSocketAddress(wifiP2pInfo.groupOwnerAddress, Util.PORT));
                         NetworkConnection conn = new NetworkConnection(socket, MainActivity.this);
                         addNewConnection(conn);
                     } catch (IOException e)
@@ -301,8 +304,13 @@ public class MainActivity extends AppCompatActivity implements
 
         if(view != null)
         {
-            // TODO Reimplement [complete]
-            broadcastMessage("begin");
+            // TODO Reimplement
+            broadcastMessage("begin", true);
+            for(byte i = 0; i < 64; i++)
+            {
+                broadcastMessage(new byte[] {i, i, i, i, i, i, i, i}, false);
+            }
+            toast("sent all udp test packets");
         }
 	}
 
@@ -395,10 +403,17 @@ public class MainActivity extends AppCompatActivity implements
 	}
 
 	@Override
-	public void receiveNetworkMessage(Serializable message)
+	public void receiveTCPMessage(Serializable message)
 	{
         // TODO reimplement
-        System.out.println(message.toString());
+        toast("Received TCP message: " + message.toString());
+	}
+
+	@Override
+	public void receiveUDPMessage(byte[] message)
+    {
+        // TODO reimplement
+        toast("Received UDP message: " + Arrays.toString(message));
 	}
 
 	@Override
@@ -420,20 +435,13 @@ public class MainActivity extends AppCompatActivity implements
                 });
             }
         }
-        else
-        {
-            HashMap<String, String> message = new HashMap<>();
-            message.put("test", "test");
-            broadcastMessage(message);
-        }
 	}
 
-    // TODO reimplement [complete]
-    public void broadcastMessage(Serializable message)
+    public void broadcastMessage(Serializable message, boolean reliable)
     {
         for(NetworkConnection connection : connections)
         {
-            connection.write(message);
+            connection.write(message, reliable);
         }
     }
 }

@@ -7,6 +7,7 @@ import java.io.Serializable;
  */
 public interface NetworkHandler
 {
-    void receiveNetworkMessage(Serializable message);
+    void receiveTCPMessage(Serializable message);
+    void receiveUDPMessage(byte[] message);
     void addNewConnection(NetworkConnection connection);
 }
