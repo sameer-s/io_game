@@ -1,6 +1,7 @@
 package io.github.sunsetsucks.iogame.network;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
