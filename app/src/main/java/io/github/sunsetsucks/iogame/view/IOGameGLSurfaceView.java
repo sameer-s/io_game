@@ -19,6 +19,7 @@ import javax.microedition.khronos.opengles.GL10;
 import io.github.sunsetsucks.iogame.Util;
 import io.github.sunsetsucks.iogame.shape.Color;
 import io.github.sunsetsucks.iogame.shape.GameObject;
+import io.github.sunsetsucks.iogame.shape.Player;
 import io.github.sunsetsucks.iogame.shape.Square;
 
 import static io.github.sunsetsucks.iogame.shape.GameObject.GameObjectMap;
@@ -29,11 +30,6 @@ import static io.github.sunsetsucks.iogame.shape.GameObject.GameObjectMap;
 public class IOGameGLSurfaceView extends GLSurfaceView
 {
 	public Renderer renderer;
-
-	private static float SPEED = 2.0f;
-
-	// private static final String rand = UUID.randomUUID().toString();
-	private static final String rand = "abcd";
 
 	public IOGameGLSurfaceView(Context context)
 	{
@@ -62,16 +58,16 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 	private float targetX = 0, targetY = 0;
 
 	private MotionEvent lastEvent;
+
 	@Override
 	public boolean onTouchEvent(@NonNull MotionEvent e)
 	{
-
-
 		// TODO remove
 		if (!Util.isHost)
 			return true;
 
-		if(e.getActionMasked() == MotionEvent.ACTION_DOWN  || e.getActionMasked() == MotionEvent.ACTION_MOVE)
+		if (e.getActionMasked() == MotionEvent.ACTION_DOWN
+				|| e.getActionMasked() == MotionEvent.ACTION_MOVE)
 		{
 
 			float xScreen = e.getX();
@@ -84,8 +80,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 			display.getSize(size);
 			int screenWidth = size.x, screenHeight = size.y;
 
-			targetX = (xScreen / screenWidth) * -2.0f + 1.0f
-					+ renderer.cameraX;
+			targetX = (xScreen / screenWidth) * -2.0f + 1.0f + renderer.cameraX;
 			targetY = (yScreen / screenHeight) * -2.0f + 1.0f
 					+ renderer.cameraY;
 
@@ -128,15 +123,11 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 			if (r.nextBoolean())
 				y = y * -1.0f;
 
-			double ran = 20;
 			toDraw.put(new Square(Util.loadBitmap("drawable/zorua"))
-					.setState(0f, x, y, 0.4f, 0.5f).setName("runner" + rand));
+					.setState(0f, x, y, 0.4f, 0.5f).setName("runner"));
 		}
 
-		public boolean checkCollision(GameObject a, GameObject b) // check if
-																	// two given
-																	// objects
-																	// collide
+		public boolean checkCollision(GameObject a, GameObject b)
 		{
 			boolean aCollision = a.translationX + a.scaleX >= b.translationX
 					&& b.translationX + b.scaleX >= a.translationX;
@@ -151,31 +142,33 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 			GLES20.glClearColor(color[0], color[1], color[2], color[3]);
 
 			toDraw.put(new Square(Util.loadBitmap("drawable/sanic"))
-					.setState(0f, 0f, 0f, 1f, 1f).setName("player" + rand));
+					.setState(0f, 0f, 0f, 1f, 1f).setName("player"));
 			generateObject();
 			toDraw.put(new Square(Util.loadBitmap("drawable/grid"))
-					.setState(0f, 0f, -1f, 30f, 30f)
-					.setName("background" + rand));
+					.setState(0f, 0f, -1f, 30f, 30f).setName("background"));
 		}
 
 		long lastTime = -1;
+
 		public void onDrawFrame(GL10 unused)
 		{
 			GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
-			GameObject player = toDraw.get("player" + rand);
+			Player player = (Player) toDraw.get("player");
 
 			long thisTime = System.nanoTime();
-			if(lastTime != -1)
+			if (lastTime != -1)
 			{
 				float playerX = player.translationX;
 				float playerY = player.translationY;
 
-				float totalDistance = (float) Math.hypot(targetX - playerX, targetY - playerY);
+				float totalDistance = (float) Math.hypot(targetX - playerX,
+						targetY - playerY);
 
-				if(totalDistance != 0)
+				if (totalDistance != 0)
 				{
-					float distanceToTravel = Math.min(totalDistance, SPEED * ((thisTime - lastTime) / 1_000_000_000f));
+					float distanceToTravel = Math.min(totalDistance,
+							player.getSpeed() * ((thisTime - lastTime) / 1_000_000_000f));
 
 					float ratio = distanceToTravel / totalDistance;
 
@@ -188,7 +181,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 					cameraX = player.translationX = playerX;
 					cameraY = player.translationY = playerY;
 				}
-				else if (lastEvent != null){
+				else if (lastEvent != null)
+				{
 					onTouchEvent(lastEvent);
 				}
 			}
@@ -204,18 +198,18 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 				GameObject go = toDraw.get(s);
 				go.draw(mvpMatrix);
 
+				// TODO fix
 				// noinspection StatementWithEmptyBody
-				if (go.name.contains(rand) && Util.isHost /* TODO remove */)
-				{
-					// Util.broadcastMessage(go);
-				}
+				// if (go.name.contains(rand) && Util.isHost /* TODO remove */)
+				// {
+				// // Util.broadcastMessage(go);
+				// }
 			}
 
-			if (checkCollision(toDraw.get("player" + rand),
-					toDraw.get("runner" + rand))) // should probably not
-													// hardcode index 1?
+			// TODO reimplement
+			if (checkCollision(toDraw.get("player"), toDraw.get("runner")))
 			{
-				toDraw.remove("runner" + rand);
+				toDraw.remove("runner");
 				generateObject();
 			}
 		}

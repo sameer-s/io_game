@@ -104,7 +104,11 @@ public class MainActivity extends AppCompatActivity implements
 
 				manager.connect(channel, config, null);
 
-                unsocketedConnections++;
+                if(device.status == WifiP2pDevice.AVAILABLE)
+                {
+                    unsocketedConnections++;
+                }
+
                 beginGameButton.setVisibility(View.GONE);
 			}
 		});
