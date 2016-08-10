@@ -260,14 +260,23 @@ public class IOGameGLSurfaceView extends GLSurfaceView
                 }
             };
 
+            DialogInterface.OnDismissListener listener2 = new DialogInterface.OnDismissListener()
+            {
+                @Override
+                public void onDismiss(DialogInterface dialogInterface)
+                {
+                    ((Activity) Util.context).finish();
+                }
+            };
+
             if (b == Util.compId)
             {
-                Util.alert("rekt", "u ded", listener);
+                Util.alert("rekt", "u ded", listener, listener2);
             }
 
             if (Util.compId == 0 && players.size() == 1)
             {
-                Util.alert("Good job!", "Do you feel good about yourself? You just murdered all the runners.", listener);
+                Util.alert("Good job!", "Do you feel good about yourself? You just murdered all the runners.", listener, listener2);
             }
         }
 

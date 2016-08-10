@@ -65,7 +65,7 @@ public class Util
     }
 
     public static void alert(final String title, final String text,
-                             final DialogInterface.OnClickListener listener)
+                             final DialogInterface.OnClickListener listener, final DialogInterface.OnDismissListener listener2)
     {
         assertActivity("create alert");
 
@@ -75,7 +75,8 @@ public class Util
             public void run()
             {
                 new AlertDialog.Builder(context).setTitle(title).setMessage(text)
-                        .setPositiveButton("OK", listener).create().show();
+                        .setPositiveButton("OK", listener)
+                        .setOnDismissListener(listener2).create().show();
             }
         });
     }
