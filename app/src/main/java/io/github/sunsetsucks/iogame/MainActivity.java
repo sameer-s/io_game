@@ -3,6 +3,7 @@ package io.github.sunsetsucks.iogame;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.NetworkInfo;
@@ -12,9 +13,12 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -49,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements
         WifiP2pManager.PeerListListener, NetworkHandler
 {
     private IOGameGLSurfaceView glView;
+    private TextView timer;
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
     private IOGameBroadcastReceiver receiver = null;
@@ -75,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         glView = (IOGameGLSurfaceView) findViewById(R.id.gl_view);
+        timer = (TextView) findViewById(R.id.timer);
 
         manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         channel = manager.initialize(this, getMainLooper(), null);
@@ -330,6 +336,32 @@ public class MainActivity extends AppCompatActivity implements
                 connections.get(i).write(message, true);
             }
         }
+        new CountDownTimer(2 * 60 * 1000, 1000)
+        {
+            public void onTick(long millisUntilFinished)
+            {
+                timer.setText(DateUtils.formatElapsedTime(millisUntilFinished / 1000));
+            }
+
+            public void onFinish()
+            {
+                Util.alert("Runners win!", "The runners have survived the chaser apocalypse!", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        finish();
+                    }
+                }, new DialogInterface.OnDismissListener()
+                {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface)
+                    {
+                        finish();
+                    }
+                });
+            }
+        }.start();
     }
 
     @Override

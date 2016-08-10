@@ -93,8 +93,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             targetY = (yScreen / screenHeight) * -2.0f + 1.0f
                     + renderer.cameraY;
 
-            targetX = Util.clamp(targetX, -14.6f, 15);
-            targetY = Util.clamp(targetY, -15.7f, 13.7f);
+            targetX = Util.clamp(targetX, -15, 14.5f);
+            targetY = Util.clamp(targetY, -15.5f, 13.6f);
 
             lastEvent = e;
         }
@@ -155,10 +155,10 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         {
             Random r = new Random();
             float x, y;
-            x = (float) Math.random() * 15;
+            x = (float) Math.random() * 14;
             if (r.nextBoolean())
                 x = x * -1.0f;
-            y = (float) Math.random() * 15;
+            y = (float) Math.random() * 14;
             if (r.nextBoolean())
                 y = y * -1.0f;
 
@@ -229,10 +229,10 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
             Random r = new Random();
             float x, y;
-            x = (float) Math.random() * 15;
+            x = (float) Math.random() * 14;
             if (r.nextBoolean())
                 x = x * -1.0f;
-            y = (float) Math.random() * 15;
+            y = (float) Math.random() * 14;
             if (r.nextBoolean())
                 y = y * -1.0f;
 
@@ -260,14 +260,23 @@ public class IOGameGLSurfaceView extends GLSurfaceView
                 }
             };
 
+            DialogInterface.OnDismissListener listener2 = new DialogInterface.OnDismissListener()
+            {
+                @Override
+                public void onDismiss(DialogInterface dialogInterface)
+                {
+                    ((Activity) Util.context).finish();
+                }
+            };
+
             if (b == Util.compId)
             {
-                Util.alert("rekt", "u ded", listener);
+                Util.alert("rekt", "u ded", listener, listener2);
             }
 
             if (Util.compId == 0 && players.size() == 1)
             {
-                Util.alert("Good job!", "Do you feel good about yourself? You just murdered all the runners.", listener);
+                Util.alert("Good job!", "Do you feel good about yourself? You just murdered all the runners.", listener, listener2);
             }
         }
 
