@@ -7,6 +7,7 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.WindowManager;
@@ -107,6 +108,9 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
         if (renderer.players.containsKey(compId))
         {
+            p = renderer.players.get(compId);
+        } else if (!renderer.deadPlayers.contains(compId))
+        {
             if (Player.isChaser(bytes))
             {
                 p = new Chaser(compId);
@@ -116,11 +120,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             }
 
             renderer.players.put(compId, p);
-        }
-        else
-        {
-            p = renderer.players.get(compId);
-        }
+        } else
+            return;
 
         p.fromBytes(bytes);
     }
@@ -145,7 +146,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         private float cameraX = 0f, cameraY = 0f;
 
         // model view projection
-        private final float[] mvpMatrix = new float[16], projectionMatrix = new float[16], viewMatrix = new float[16];
+        private final float[] mvpMatrix = new float[16],
+                projectionMatrix = new float[16], viewMatrix = new float[16];
 
         public void generateObject()
         {
@@ -176,6 +178,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
             p.translationX = x;
             p.translationY = y;
+
             powerups.add(p);
 
             Util.broadcastMessage(p.toSerializable(false), true);
@@ -195,16 +198,45 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             float[] color = Color.SARCOLINE;
             GLES20.glClearColor(color[0], color[1], color[2], color[3]);
 
+            toDraw.add(new Square(Util.loadBitmap("drawable/grid", 2))
+                    .setState(0f, 0f, -1f, 30f, 30f));
+        }
+
+        public void startGame()
+        {
+            Player p;
+
             if (Util.isHost)
             {
-                players.put(Util.compId, new Chaser(Util.compId));
-                for (int i = 0; i < 16; i++) generateObject();
+                p = new Chaser(Util.compId);
+                for (int i = 0; i < 16; i++)
+                    generateObject();
             } else
             {
-                players.put(Util.compId, new Runner(Util.compId));
+                p = new Runner(Util.compId);
             }
 
-            toDraw.add(new Square(Util.loadBitmap("drawable/grid")).setState(0f, 0f, -1f, 30f, 30f));
+            Random r = new Random();
+            float x, y;
+            x = (float) Math.random() * 15;
+            if (r.nextBoolean())
+                x = x * -1.0f;
+            y = (float) Math.random() * 15;
+            if (r.nextBoolean())
+                y = y * -1.0f;
+
+            p.translationX = x;
+            p.translationY = y;
+            targetX = x;
+            targetY = y;
+
+            players.put(Util.compId, p);
+        }
+
+        public void playerDied(byte b)
+        {
+            players.remove(b);
+            deadPlayers.add(b);
         }
 
         long lastTime = -1;
@@ -213,10 +245,16 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         {
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
+            Matrix.setLookAtM(viewMatrix, 0, /* eye */ cameraX, cameraY, -3f,
+                    /* center */ cameraX, cameraY, 0f, /* up */ 0f, 1f, 0f);
+
+            new Square().draw(mvpMatrix);
+
+            if(true) return;
             Player player = players.get(Util.compId);
 
             long thisTime = System.nanoTime();
-            if (lastTime != -1)
+            if (lastTime != -1 && player != null)
             {
                 float playerX = player.translationX;
                 float playerY = player.translationY;
@@ -227,7 +265,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
                 if (totalDistance != 0)
                 {
                     float distanceToTravel = Math.min(totalDistance,
-                            player.getSpeed() * ((thisTime - lastTime) / 1_000_000_000f));
+                            player.getSpeed()
+                                    * ((thisTime - lastTime) / 1_000_000_000f));
 
                     float ratio = distanceToTravel / totalDistance;
 
@@ -237,12 +276,13 @@ public class IOGameGLSurfaceView extends GLSurfaceView
                     playerX = Util.clamp(playerX, -15, 14.5f);
                     playerY = Util.clamp(playerY, -15.5f, 13.6f);
 
-                    cameraX = player.translationX = playerX;
-                    cameraY = player.translationY = playerY;
                 } else if (lastEvent != null)
                 {
                     onTouchEvent(lastEvent);
                 }
+
+                cameraX = player.translationX = playerX;
+                cameraY = player.translationY = playerY;
 
                 Util.broadcastMessage(player.toBytes(), false);
             }
@@ -254,6 +294,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
             // Checks collisions and notifies the relevant host
+
             if (Util.isHost)
             {
                 for (Byte b : players.keySet())
@@ -261,7 +302,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
                     List<Powerup> toRemove = new ArrayList<>();
                     for (Powerup p : powerups)
                     {
-                        if (checkCollision(p, players.get(b)) && p.doesContact(players.get(b)))
+                        if (checkCollision(p, players.get(b))
+                                && p.doesContact(players.get(b)))
                         {
                             toRemove.add(p);
                             generateObject();
@@ -276,25 +318,40 @@ public class IOGameGLSurfaceView extends GLSurfaceView
                 List<Byte> toRemove = new ArrayList<>();
                 for (byte b : players.keySet())
                 {
-                    if (b == 0) continue;
+                    if (b == 0)
+                        continue;
 
                     if (checkCollision(player, players.get(b)))
                     {
-                        Util.broadcastMessage(players.get(b).destroyedMessage(), true);
+                        Util.broadcastMessage(
+                                players.get(b).destroyedMessage(), true);
                         toRemove.add(b);
                     }
                 }
 
                 for (Byte b : toRemove)
                 {
-                    players.remove(b);
+                    playerDied(b);
                 }
             }
 
             // Draw all three kinds of game objects
-            for (GameObject go : toDraw) go.draw(mvpMatrix);
-            for (Powerup pow : powerups) pow.draw(mvpMatrix);
-            for (Player p : players.values()) p.draw(mvpMatrix);
+            for (GameObject go : toDraw)
+            {
+//                System.out.println("Drawing generic game obj");
+                go.draw(mvpMatrix);
+            }
+
+            for (Powerup pow : powerups)
+            {
+//                System.out.println("Drawing power up");
+                pow.draw(mvpMatrix);
+            }
+            for (Player p : players.values())
+            {
+//                System.out.println("Drawing player");
+                p.draw(mvpMatrix);
+            }
         }
 
         public void onSurfaceChanged(GL10 unused, int width, int height)

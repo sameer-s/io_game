@@ -11,6 +11,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Sameer on 2016-07-27.
@@ -98,11 +100,30 @@ public class Util
         ((MainActivity) context).broadcastMessage(toSend, reliable);
     }
 
+    private static List<Bitmap> bitmaps = new ArrayList<>();
     public static Bitmap loadBitmap(String path)
+    {
+        return loadBitmap(path, 1);
+    }
+
+    public static Bitmap loadBitmap(String path, int inSampleSize)
     {
         int id = context.getResources().getIdentifier(path, null,
                 context.getPackageName());
-        return BitmapFactory.decodeResource(context.getResources(), id);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = inSampleSize;
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), id, options);
+        bitmaps.add(bitmap);
+        return bitmap;
+
+    }
+
+    public static void unloadBitmaps()
+    {
+        for(Bitmap bitmap : bitmaps)
+        {
+            bitmap.recycle();
+        }
     }
 
     public static float clamp(float val, float min, float max)

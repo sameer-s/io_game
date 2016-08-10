@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
+import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -94,7 +95,7 @@ public abstract class Shape extends GameObject
 
             GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, texture, 0);
 
-            texture.recycle();
+//            texture.recycle();
 
             glProgram = GLES20.glCreateProgram();
             GLES20.glAttachShader(glProgram, vertexShaderT);
@@ -121,6 +122,8 @@ public abstract class Shape extends GameObject
 
     public void draw(float[] mvpMatrix)
     {
+//        Log.d("iogame_debug", "Drawing: " + getClass().getSimpleName()); // FIXME: 2016-08-09
+
         float[] resultMatrix =  new float[16];
         Matrix.multiplyMM(resultMatrix, 0, mvpMatrix, 0, getMovementMatrix(), 0);
 
