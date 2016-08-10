@@ -78,21 +78,17 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
 		if(e.getActionMasked() == MotionEvent.ACTION_DOWN  || e.getActionMasked() == MotionEvent.ACTION_MOVE)
 		{
-
 			float xScreen = e.getX();
 			float yScreen = e.getY();
 
-			WindowManager wm = (WindowManager) Util.context
-					.getSystemService(Context.WINDOW_SERVICE);
+			WindowManager wm = (WindowManager) Util.context.getSystemService(Context.WINDOW_SERVICE);
 			Display display = wm.getDefaultDisplay();
 			Point size = new Point();
 			display.getSize(size);
 			int screenWidth = size.x, screenHeight = size.y;
 
-			targetX = (xScreen / screenWidth) * -2.0f + 1.0f
-					+ renderer.cameraX;
-			targetY = (yScreen / screenHeight) * -2.0f + 1.0f
-					+ renderer.cameraY;
+			targetX = (xScreen / screenWidth) * -2.0f + 1.0f + renderer.cameraX;
+			targetY = (yScreen / screenHeight) * -2.0f + 1.0f + renderer.cameraY;
 
 			targetX = Util.clamp(targetX, -15, 15);
 			targetY = Util.clamp(targetY, -15.7f, 13.6f);
@@ -128,13 +124,13 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {
-					globalTimer++;
-					SPEED = BASE_SPEED * 2.5f;
-					if (globalTimer == limitTimer) {
-						SPEED = BASE_SPEED;
-						timer.cancel();
-						return;
-					}
+				globalTimer++;
+				SPEED = BASE_SPEED * 2.5f;
+				if (globalTimer == limitTimer) {
+					SPEED = BASE_SPEED;
+					timer.cancel();
+					return;
+				}
 				}
 			}, 0, 1000);
 		}
@@ -144,13 +140,13 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {
-					globalTimer++;
-					SPEED = BASE_SPEED / 2.5f;
-					if (globalTimer == limitTimer) {
-						SPEED = BASE_SPEED;
-						timer.cancel();
-						return;
-					}
+				globalTimer++;
+				SPEED = BASE_SPEED / 2.5f;
+				if (globalTimer == limitTimer) {
+					SPEED = BASE_SPEED;
+					timer.cancel();
+					return;
+				}
 				}
 			}, 0, 1000);
 		}
@@ -160,13 +156,13 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {
-					globalTimer++;
-					toDraw.get("grow" + rand).setState(0.75f, 0.75f);
-					if (globalTimer == limitTimer) {
-						toDraw.get("grow" + rand).setState(0.5f, 0.5f);
-						timer.cancel();
-						return;
-					}
+				globalTimer++;
+				toDraw.get("grow" + rand).setState(0.75f, 0.75f);
+				if (globalTimer == limitTimer) {
+					toDraw.get("grow" + rand).setState(0.5f, 0.5f);
+					timer.cancel();
+					return;
+				}
 				}
 			}, 0, 1000);
 		}
@@ -176,13 +172,13 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {
-					globalTimer++;
-					canCollide = false;
-					if (globalTimer == limitTimer) {
-						canCollide = true;
-						timer.cancel();
-						return;
-					}
+				globalTimer++;
+				canCollide = false;
+				if (globalTimer == limitTimer) {
+					canCollide = true;
+					timer.cancel();
+					return;
+				}
 				}
 			}, 0, 1000);
 		}
@@ -198,14 +194,14 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 			if(r.nextBoolean())
 				y = y * -1.0f;
 			int type = TypeGen();
-			if(type==1)toDraw.put(new Square(Util.loadBitmap("drawable/pizza")).setState(0f, x, y, 0.4f, 0.5f).setName("object" + number));
-			else if(type==2) toDraw.put(new Square(Util.loadBitmap("drawable/tomato")).setState(0f, x, y, 0.4f, 0.5f).setName("object" + number));
-			else if(type==3) toDraw.put(new Square(Util.loadBitmap("drawable/burger")).setState(0f, x, y, 0.4f, 0.5f).setName("object" + number));
-			else if(type==4) toDraw.put(new Square(Util.loadBitmap("drawable/cookie")).setState(0f, x, y, 0.4f, 0.5f).setName("object" + number));
+			if(type==1)toDraw.put(new Square(Util.loadBitmap("drawable/pizza")).setState(0f, x, y, 0.5f, 0.5f).setName("object" + number));
+			else if(type==2) toDraw.put(new Square(Util.loadBitmap("drawable/tomato")).setState(0f, x, y, 0.5f, 0.5f).setName("object" + number));
+			else if(type==3) toDraw.put(new Square(Util.loadBitmap("drawable/burger")).setState(0f, x, y, 0.5f, 0.5f).setName("object" + number));
+			else if(type==4) toDraw.put(new Square(Util.loadBitmap("drawable/cookie")).setState(0f, x, y, 0.5f, 0.5f).setName("object" + number));
 			powerUps[number] = new PowerUp(type, number);
 		}
 
-		public void intialObject()
+		public void initialObject()
 		{
 			for(int i = 0; i<16; i++){
 				Random r = new Random();
@@ -217,23 +213,23 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 				if (r.nextBoolean())
 					y = y * -1.0f;
 				int type = TypeGen();
-				if(type==1)toDraw.put(new Square(Util.loadBitmap("drawable/pizza")).setState(0f, x, y, 0.4f, 0.5f).setName("object" + i));
-				else if(type==2) toDraw.put(new Square(Util.loadBitmap("drawable/tomato")).setState(0f, x, y, 0.4f, 0.5f).setName("object" + i));
-				else if(type==3) toDraw.put(new Square(Util.loadBitmap("drawable/burger")).setState(0f, x, y, 0.4f, 0.5f).setName("object" + i));
-				else if(type==4) toDraw.put(new Square(Util.loadBitmap("drawable/cookie")).setState(0f, x, y, 0.4f, 0.5f).setName("object" + i));
+				if(type==1)toDraw.put(new Square(Util.loadBitmap("drawable/pizza")).setState(0f, x, y, 0.5f, 0.5f).setName("object" + i));
+				else if(type==2) toDraw.put(new Square(Util.loadBitmap("drawable/tomato")).setState(0f, x, y, 0.5f, 0.5f).setName("object" + i));
+				else if(type==3) toDraw.put(new Square(Util.loadBitmap("drawable/burger")).setState(0f, x, y, 0.5f, 0.5f).setName("object" + i));
+				else if(type==4) toDraw.put(new Square(Util.loadBitmap("drawable/cookie")).setState(0f, x, y, 0.5f, 0.5f).setName("object" + i));
 				powerUps[i] = new PowerUp(type,i);
-				System.out.println("Spawning at: "+ "("+x+","+y+")");
+				System.out.println("Spawning at: " + "(" + x + "," + y + ")");
 			}
 		}
 
 		public int TypeGen()
 		{
-			int temp=0;
+			int temp = 0;
 			double RAND = Math.random();
-			if(RAND < 0.3) temp =1;
-			else if(RAND >=0.3 && RAND < 0.5)  temp=2;
-			else if(RAND>= 0.5 && RAND <0.7) temp =3;
-			else if(RAND >=0.7)temp=4;
+			if(RAND < 0.3) temp = 1;
+			else if(RAND >= 0.3 && RAND < 0.5) temp = 2;
+			else if(RAND >= 0.5 && RAND < 0.7) temp = 3;
+			else if(RAND >= 0.7) temp = 4;
 			return temp;
 		}
 
@@ -265,7 +261,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 			GLES20.glClearColor(color[0], color[1], color[2], color[3]);
 
 			toDraw.put(new Square(Util.loadBitmap("drawable/sanic")).setState(0f, 0f, 0f, 1f, 1f).setName("player" + rand));
-			intialObject();
+			initialObject();
 			toDraw.put(new Square(Util.loadBitmap("drawable/grid")).setState(0f, 0f, -1f, 30f, 30f).setName("background" + rand));
 		}
 
@@ -324,7 +320,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 				}
 			}
 
-			if(checkCollision(toDraw.get("player" + rand), toDraw.get("speedup" + rand)))
+			if(toDraw.get("speedup" + rand) != null && checkCollision(toDraw.get("player" + rand), toDraw.get("speedup" + rand)))
 			{
 				speed = true;
 				generateObject(1);
@@ -333,7 +329,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 				speed = false;
 			}
 
-			if(checkCollision(toDraw.get("player" + rand), toDraw.get("slowdown" + rand)))
+			if(toDraw.get("slowdown" + rand) != null && checkCollision(toDraw.get("player" + rand), toDraw.get("slowdown" + rand)))
 			{
 				slow = true;
 				generateObject(2);
@@ -342,7 +338,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 				slow = false;
 			}
 
-			if(checkCollision(toDraw.get("player" + rand), toDraw.get("grow" + rand))) {
+			if(toDraw.get("grow" + rand) != null && checkCollision(toDraw.get("player" + rand), toDraw.get("grow" + rand))) {
 				grow = true;
 				generateObject(3);
 				growUp();
@@ -350,7 +346,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 				grow = false;
 			}
 
-			if(checkCollision(toDraw.get("player" + rand), toDraw.get("invincible" + rand)))
+			if(toDraw.get("invincible" + rand) != null && checkCollision(toDraw.get("player" + rand), toDraw.get("invincible" + rand)))
 			{
 				speed = true;
 				canCollide = false;
