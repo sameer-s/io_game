@@ -16,7 +16,6 @@ public abstract class GameObject
     public float translationY = 0f;
     public float scaleX = 1f;
     public float scaleY = 1f;
-    public String name = null;
 
     public GameObject setState(float rotation, float translationX, float translationY, float scaleX, float scaleY)
     {
@@ -26,12 +25,6 @@ public abstract class GameObject
         this.scaleX = scaleX;
         this.scaleY = scaleY;
 
-        return this;
-    }
-
-    public GameObject setName(String name)
-    {
-        this.name = name;
         return this;
     }
 
@@ -56,30 +49,4 @@ public abstract class GameObject
     }
 
     public abstract void draw(float[] mvpMatrix);
-
-    public static class GameObjectMap extends HashMap<String, GameObject>
-    {
-        public void put(GameObject obj) { put(obj.name, obj); }
-    }
-
-    public byte[] updateMessage()
-    {
-        /*
-
-        Code | Name          | Bits     | Total Bits
-        -----|---------------|----------|-------------
-        A    | Action        | 4        | 4
-        B    | Scale X       | 4        | 8
-        C    | Scale Y       | 4        | 12
-        D    | Translation X | 12       | 24
-        E    | Translation Y | 11       | 35
-        F    | Rotation      | 9        | 44
-        G    | Player Origin | 4        | 48
-        H    | Object ID     | 8        | 56
-
-         */
-
-
-        return null;
-    }
 }

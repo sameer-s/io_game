@@ -37,7 +37,6 @@ public class UDPWriteThread extends Thread
                         DatagramPacket packet = new DatagramPacket(
                                 message, message.length, socket.getRemoteSocketAddress());
 
-                        Log.d("iogame_debug", String.format("Sending packet to %s. From: %s", socket.getRemoteSocketAddress(),  socket.getLocalSocketAddress()));
                         socket.send(packet);
 
                         message = null;

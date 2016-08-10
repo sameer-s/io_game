@@ -37,11 +37,7 @@ public class UDPReadThread extends Thread
                 byte[] buffer = new byte[Util.DATAGRAM_SIZE];
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
-                Log.d("iogame_debug", "ready to recieve packet len=" + buffer.length); // FIXME: 8/8/16
                 socket.receive(packet);
-
-                Log.d("iogame_debug", "received packet"); // FIXME: 8/8/16
-
                 handler.receiveUDPMessage(packet.getData());
             }
         } catch (IOException e)

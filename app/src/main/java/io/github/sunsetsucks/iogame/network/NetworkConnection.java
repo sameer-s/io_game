@@ -19,19 +19,22 @@ public class NetworkConnection
     private UDPWriteThread udpWrite;
     private TCPWriteThread tcpWrite;
     private Socket socket;
-    private DatagramSocket dSocketRead, dSocketWrite;
+    private static DatagramSocket dSocketRead;
+    private DatagramSocket dSocketWrite;
 
     public NetworkConnection(Socket socket, NetworkHandler handler)
     {
         this.socket = socket;
 
-        try
+        if(dSocketRead == null)
         {
-            dSocketRead = new DatagramSocket(Util.PORT);
-        }
-        catch (SocketException e)
-        {
-            Log.e("iogame_networking", "An error occurred initializing the datagram socket (read)");
+            try
+            {
+                dSocketRead = new DatagramSocket(Util.PORT);
+            } catch (SocketException e)
+            {
+                Log.e("iogame_networking", "An error occurred initializing the datagram socket (read)");
+            }
         }
 
         try
