@@ -203,7 +203,6 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 			else if(type==3) toDraw.put(new Square(Util.loadBitmap("drawable/burger")).setState(0f, x, y, 0.4f, 0.5f).setName("object" + number));
 			else if(type==4) toDraw.put(new Square(Util.loadBitmap("drawable/cookie")).setState(0f, x, y, 0.4f, 0.5f).setName("object" + number));
 			powerUps[number] = new PowerUp(type, number);
-			System.out.println("Spawning at: "+ "("+x+","+y+")");
 		}
 
 		public void intialObject()
@@ -255,10 +254,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 		{
 			if(!canCollide)
 				return false;
-			boolean aCollision = a.translationX + a.scaleX >= b.translationX
-					&& b.translationX + b.scaleX >= a.translationX;
-			boolean bCollision = a.translationY + a.scaleY >= b.translationY
-					&& b.translationY + b.scaleY >= a.translationY;
+			boolean aCollision = a.translationX + a.scaleX >= b.translationX && b.translationX + b.scaleX >= a.translationX;
+			boolean bCollision = a.translationY + a.scaleY >= b.translationY && b.translationY + b.scaleY >= a.translationY;
 			return aCollision && bCollision;
 		}
 
