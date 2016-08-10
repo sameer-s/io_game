@@ -313,6 +313,33 @@ public class MainActivity extends AppCompatActivity implements
                 ViewAnimator animator = (ViewAnimator) findViewById(
                         R.id.animator);
                 animator.showNext();
+
+                new CountDownTimer(2 * 60 * 1000, 1000)
+                {
+                    public void onTick(long millisUntilFinished)
+                    {
+                        timer.setText(DateUtils.formatElapsedTime(millisUntilFinished / 1000));
+                    }
+
+                    public void onFinish()
+                    {
+                        Util.alert("Runners win!", "The runners have survived the chaser apocalypse!", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                                finish();
+                            }
+                        }, new DialogInterface.OnDismissListener()
+                        {
+                            @Override
+                            public void onDismiss(DialogInterface dialogInterface)
+                            {
+                                finish();
+                            }
+                        });
+                    }
+                }.start();
             }
         });
 
@@ -336,32 +363,6 @@ public class MainActivity extends AppCompatActivity implements
                 connections.get(i).write(message, true);
             }
         }
-        new CountDownTimer(2 * 60 * 1000, 1000)
-        {
-            public void onTick(long millisUntilFinished)
-            {
-                timer.setText(DateUtils.formatElapsedTime(millisUntilFinished / 1000));
-            }
-
-            public void onFinish()
-            {
-                Util.alert("Runners win!", "The runners have survived the chaser apocalypse!", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i)
-                    {
-                        finish();
-                    }
-                }, new DialogInterface.OnDismissListener()
-                {
-                    @Override
-                    public void onDismiss(DialogInterface dialogInterface)
-                    {
-                        finish();
-                    }
-                });
-            }
-        }.start();
     }
 
     @Override
