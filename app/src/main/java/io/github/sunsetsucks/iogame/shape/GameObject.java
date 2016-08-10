@@ -29,6 +29,14 @@ public abstract class GameObject
         return this;
     }
 
+    public GameObject setState(float scaleX, float scaleY)
+    {
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
+
+        return this;
+    }
+
     public GameObject setName(String name)
     {
         this.name = name;
