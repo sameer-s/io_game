@@ -149,7 +149,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         private final float[] mvpMatrix = new float[16],
                 projectionMatrix = new float[16], viewMatrix = new float[16];
 
-        public void generateObject()
+        public Powerup generateObject()
         {
             Random r = new Random();
             float x, y;
@@ -179,9 +179,9 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             p.translationX = x;
             p.translationY = y;
 
-            powerups.add(p);
-
             Util.broadcastMessage(p.toSerializable(false), true);
+
+            return p;
         }
 
         public boolean checkCollision(GameObject a, GameObject b)
@@ -202,7 +202,12 @@ public class IOGameGLSurfaceView extends GLSurfaceView
                     .setState(0f, 0f, -1f, 30f, 30f));
         }
 
+        private boolean startGame = false;
         public void startGame()
+        {
+            startGame = true;
+        }
+        private void _startGame()
         {
             Player p;
 
@@ -231,6 +236,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             targetY = y;
 
             players.put(Util.compId, p);
+
+            startGame = false;
         }
 
         public void playerDied(byte b)
@@ -243,14 +250,11 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
         public void onDrawFrame(GL10 unused)
         {
-            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+            if(startGame)
+            {
+                _startGame();
+            }
 
-            Matrix.setLookAtM(viewMatrix, 0, /* eye */ cameraX, cameraY, -3f,
-                    /* center */ cameraX, cameraY, 0f, /* up */ 0f, 1f, 0f);
-
-            new Square().draw(mvpMatrix);
-
-            if(true) return;
             Player player = players.get(Util.compId);
 
             long thisTime = System.nanoTime();
@@ -299,20 +303,21 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             {
                 for (Byte b : players.keySet())
                 {
-                    List<Powerup> toRemove = new ArrayList<>();
+                    List<Powerup> toRemove = new ArrayList<>(), toAdd = new ArrayList<>();
                     for (Powerup p : powerups)
                     {
                         if (checkCollision(p, players.get(b))
                                 && p.doesContact(players.get(b)))
                         {
                             toRemove.add(p);
-                            generateObject();
+                            toAdd.add(generateObject());
 
                             Serializable message = p.toSerializable(true);
                             Util.broadcastMessage(message, true);
                         }
                     }
                     powerups.removeAll(toRemove);
+                    powerups.addAll(toAdd);
                 }
 
                 List<Byte> toRemove = new ArrayList<>();
