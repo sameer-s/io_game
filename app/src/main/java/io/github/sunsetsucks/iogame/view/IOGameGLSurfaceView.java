@@ -1,17 +1,19 @@
 package io.github.sunsetsucks.iogame.view;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Point;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -165,10 +167,10 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             if (rand < 25) // 25 percent
             {
                 p = new SpeedUpPowerup();
-            } else if (rand < 20) // 25 percent
+            } else if (rand < 50) // 25 percent
             {
                 p = new InvincibilityPowerup();
-            } else if (rand < 30) // 25 percent
+            } else if (rand < 75) // 25 percent
             {
                 p = new SpeedDownPowerup();
             } else // 25 percent
@@ -195,7 +197,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
 
         public void onSurfaceCreated(GL10 unused, EGLConfig config)
         {
-            float[] color = Color.SARCOLINE;
+            float[] color = Color.GLAUCOUS;
             GLES20.glClearColor(color[0], color[1], color[2], color[3]);
 
             toDraw.add(new Square(Util.loadBitmap("drawable/grid", 2))
@@ -203,10 +205,12 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         }
 
         private boolean startGame = false;
+
         public void startGame()
         {
             startGame = true;
         }
+
         private void _startGame()
         {
             Player p;
@@ -215,7 +219,9 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             {
                 p = new Chaser(Util.compId);
                 for (int i = 0; i < 16; i++)
-                    generateObject();
+                {
+                    powerups.add(generateObject());
+                }
             } else
             {
                 p = new Runner(Util.compId);
@@ -244,18 +250,58 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         {
             players.remove(b);
             deadPlayers.add(b);
+
+            DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i)
+                {
+                    ((Activity) Util.context).finish();
+                }
+            };
+
+            if (b == Util.compId)
+            {
+                Util.alert("rekt", "u ded", listener);
+            }
+
+            if (Util.compId == 0 && players.size() == 1)
+            {
+                Util.alert("Good job!", "Do you feel good about yourself? You just murdered all the runners.", listener);
+            }
+        }
+
+        private int powerUp = 0;
+        public void powerUp(boolean isSpeedUp)
+        {
+            powerUp = isSpeedUp ? 1 : 2;
         }
 
         long lastTime = -1;
 
         public void onDrawFrame(GL10 unused)
         {
-            if(startGame)
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+
+            if (startGame)
             {
                 _startGame();
             }
 
+
             Player player = players.get(Util.compId);
+
+            switch(powerUp)
+            {
+                case 1:
+                    player.speedChange();
+                    powerUp = 0;
+                    break;
+                case 2:
+                    player.powerUp();
+                    powerUp = 0;
+                    break;
+            }
 
             long thisTime = System.nanoTime();
             if (lastTime != -1 && player != null)
@@ -292,7 +338,7 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             }
             lastTime = thisTime;
 
-            Matrix.setLookAtM(viewMatrix, 0, /* eye */ cameraX, cameraY, -3f,
+            Matrix.setLookAtM(viewMatrix, 0, /* eye */ cameraX, cameraY, -6f,
                     /* center */ cameraX, cameraY, 0f, /* up */ 0f, 1f, 0f);
 
             Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
@@ -312,6 +358,25 @@ public class IOGameGLSurfaceView extends GLSurfaceView
                             toRemove.add(p);
                             toAdd.add(generateObject());
 
+                            if(b == 0)
+                            {
+                                if (p.isSpeedRelated())
+                                {
+                                    players.get(b).speedChange();
+                                }
+                                else
+                                {
+                                    players.get(b).powerUp();
+                                }
+                            }
+                            else
+                            {
+                                HashMap<String, Object> toSend = new HashMap<>();
+                                toSend.put("type", "powerupCollided");
+                                toSend.put("isSpeedRelated", p.isSpeedRelated());
+                                Util.sendMessage(toSend, true, b);
+                            }
+
                             Serializable message = p.toSerializable(true);
                             Util.broadcastMessage(message, true);
                         }
@@ -324,12 +389,15 @@ public class IOGameGLSurfaceView extends GLSurfaceView
                 for (byte b : players.keySet())
                 {
                     if (b == 0)
-                        continue;
-
-                    if (checkCollision(player, players.get(b)))
                     {
-                        Util.broadcastMessage(
-                                players.get(b).destroyedMessage(), true);
+                        continue;
+                    }
+
+                    Player p = players.get(b);
+
+                    if (p instanceof Runner && !p.isPoweredUp() && checkCollision(player, p))
+                    {
+                        Util.broadcastMessage(p.destroyedMessage(), true);
                         toRemove.add(b);
                     }
                 }
@@ -355,6 +423,30 @@ public class IOGameGLSurfaceView extends GLSurfaceView
             for (Player p : players.values())
             {
 //                System.out.println("Drawing player");
+
+                if(p instanceof Chaser)
+                {
+                    if(p.isPoweredUp())
+                    {
+                        p.scaleX = p.scaleY = 2f;
+                    }
+                    else
+                    {
+                        p.scaleX = p.scaleY = 1f;
+                    }
+                }
+                else if(p instanceof Runner)
+                {
+                    if(p.isPoweredUp())
+                    {
+                        p.currentTexture = 1;
+                    }
+                    else
+                    {
+                        p.currentTexture = 0;
+                    }
+                }
+
                 p.draw(mvpMatrix);
             }
         }

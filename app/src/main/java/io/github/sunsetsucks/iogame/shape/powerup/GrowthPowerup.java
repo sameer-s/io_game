@@ -11,7 +11,7 @@ import io.github.sunsetsucks.iogame.shape.player.Player;
  */
 public class GrowthPowerup extends Powerup
 {
-    private static final Bitmap texture = Util.loadBitmap("drawable/shaymin_land");
+    private static final Bitmap texture = Util.loadBitmap("drawable/burger");
 
     public GrowthPowerup()
     {

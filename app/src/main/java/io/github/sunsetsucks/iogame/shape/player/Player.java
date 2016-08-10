@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.github.sunsetsucks.iogame.shape.Square;
 
@@ -27,15 +29,37 @@ public abstract class Player extends Square
         this.compId = compId;
     }
 
-    public void speedChange()
+    protected Player(Bitmap texture, Bitmap texture2, byte compId, boolean isChaser)
     {
-        // TODO: actually speed up (if runner) or slow down (if chaser), implement timer code.
+        super(texture, texture2);
+
+        type = isChaser ? (byte) 0b10000 : 0;
+        this.compId = compId;
     }
 
+    public abstract void speedChange();
+
+    private Timer powerUpTimer;
     public void powerUp()
     {
         poweredUp = 0b1000;
-        // TODO: actually make powered up, implement timer code. Make sure that when the timer expires, you reset the value of poweredUp to 0.
+
+        if(powerUpTimer != null)
+        {
+            powerUpTimer.cancel();
+        }
+
+        powerUpTimer = new Timer();
+
+        powerUpTimer.schedule(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                poweredUp = 0;
+                powerUpTimer = null;
+            }
+        }, 5000);
     }
 
     public float getSpeed()

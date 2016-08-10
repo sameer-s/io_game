@@ -11,7 +11,7 @@ import io.github.sunsetsucks.iogame.shape.player.Player;
  */
 public class SpeedDownPowerup extends Powerup
 {
-    private static final Bitmap texture = Util.loadBitmap("drawable/victini");
+    private static final Bitmap texture = Util.loadBitmap("drawable/tomato");
 
     public SpeedDownPowerup()
     {

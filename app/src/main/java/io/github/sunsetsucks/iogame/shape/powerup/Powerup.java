@@ -24,6 +24,11 @@ public abstract class Powerup extends Square
 
     public abstract boolean doesContact(Player other);
 
+    public boolean isSpeedRelated()
+    {
+        return (this instanceof SpeedUpPowerup) || (this instanceof SpeedDownPowerup);
+    }
+
     @SuppressWarnings("unchecked")
     public Serializable toSerializable(boolean destroy)
     {

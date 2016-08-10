@@ -11,7 +11,7 @@ import io.github.sunsetsucks.iogame.shape.player.Runner;
  */
 public class SpeedUpPowerup extends Powerup
 {
-    private static final Bitmap texture = Util.loadBitmap("drawable/machine");
+    private static final Bitmap texture = Util.loadBitmap("drawable/pizza");
 
     public SpeedUpPowerup()
     {

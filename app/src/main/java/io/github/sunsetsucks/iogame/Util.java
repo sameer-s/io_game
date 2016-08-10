@@ -64,11 +64,20 @@ public class Util
         toast(Toast.LENGTH_LONG, text, params);
     }
 
-    public static void alert(String title, String text,
-                             DialogInterface.OnClickListener listener)
+    public static void alert(final String title, final String text,
+                             final DialogInterface.OnClickListener listener)
     {
-        new AlertDialog.Builder(context).setTitle(title).setMessage(text)
-                .setPositiveButton("OK", listener).create().show();
+        assertActivity("create alert");
+
+        ((Activity) context).runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                new AlertDialog.Builder(context).setTitle(title).setMessage(text)
+                        .setPositiveButton("OK", listener).create().show();
+            }
+        });
     }
 
     public static String getDeviceStatus(int deviceStatus)
@@ -98,6 +107,17 @@ public class Util
         }
 
         ((MainActivity) context).broadcastMessage(toSend, reliable);
+    }
+
+
+    public static void sendMessage(Serializable toSend, boolean reliable, byte compId)
+    {
+        if (!(context instanceof MainActivity))
+        {
+            throw new IllegalStateException("Util.context must be a MainActivity to send messages.");
+        }
+
+        ((MainActivity) context).sendMessage(toSend, reliable, compId);
     }
 
     private static List<Bitmap> bitmaps = new ArrayList<>();

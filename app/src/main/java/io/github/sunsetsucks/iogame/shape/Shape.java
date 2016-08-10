@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
-import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -34,6 +33,7 @@ public abstract class Shape extends GameObject
     private static final int VERTEX_STRIDE = 3 * 4; // 3 coordinates per vertex, 4 bytes per vertex
 
     private int[] textureNames;
+    public int currentTexture = 0;
 
     private int glProgram;
     private Bitmap texture;
@@ -46,7 +46,7 @@ public abstract class Shape extends GameObject
 
     public Shape()
     {
-        this(null);
+        this((Bitmap) null);
     }
 
     public Shape(Bitmap texture)
@@ -114,6 +114,86 @@ public abstract class Shape extends GameObject
         this.texture = texture;
     }
 
+    // FIXME
+    public Shape(Bitmap texture, Bitmap texture2)
+    {
+        float[] coords = getCoords();
+        short[] drawOrder = getDrawOrder();
+        float[] uvs = getUVs();
+
+        // initialize byte buffer for coords
+        ByteBuffer cb = ByteBuffer.allocateDirect(coords.length * 4); // (# of coordinate values * 4 bytes per float)
+        cb.order(ByteOrder.nativeOrder());
+        vertexBuffer = cb.asFloatBuffer();
+        vertexBuffer.put(coords);
+        vertexBuffer.position(0);
+
+        // initialize byte buffer for the draw list
+        ByteBuffer dlb = ByteBuffer.allocateDirect(drawOrder.length * 2); // (# of coordinate values * 2 bytes per short)
+        dlb.order(ByteOrder.nativeOrder());
+        drawListBuffer = dlb.asShortBuffer();
+        drawListBuffer.put(drawOrder);
+        drawListBuffer.position(0);
+
+        // initialize byte buffer for UV coords
+        ByteBuffer uvb = ByteBuffer.allocateDirect(uvs.length * 4); // (# of coordinate values * 4 bytes per float)
+        uvb.order(ByteOrder.nativeOrder());
+        uvBuffer = uvb.asFloatBuffer();
+        uvBuffer.put(uvs);
+        uvBuffer.position(0);
+
+        // Texture
+        if(texture != null && texture2 != null)
+        {
+            textureNames = new int[2];
+
+            GLES20.glGenTextures(2, textureNames, 0);
+
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureNames[0]);
+
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
+                    GLES20.GL_LINEAR);
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER,
+                    GLES20.GL_LINEAR);
+
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, texture, 0);
+
+//            texture.recycle();
+
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureNames[1]);
+
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
+                    GLES20.GL_LINEAR);
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER,
+                    GLES20.GL_LINEAR);
+
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, texture2, 0);
+
+            glProgram = GLES20.glCreateProgram();
+            GLES20.glAttachShader(glProgram, vertexShaderT);
+            GLES20.glAttachShader(glProgram, fragmentShaderT);
+            GLES20.glLinkProgram(glProgram);
+        }
+        // Solid Color
+        else
+        {
+            glProgram = GLES20.glCreateProgram();
+            GLES20.glAttachShader(glProgram, vertexShader);
+            GLES20.glAttachShader(glProgram, fragmentShader);
+            GLES20.glLinkProgram(glProgram);
+        }
+
+        this.texture = texture;
+    }
+
     public Shape setColor(float[] color)
     {
         this.color = color;
@@ -144,7 +224,7 @@ public abstract class Shape extends GameObject
             GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
             GLES20.glEnable(GLES20.GL_BLEND);
 
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureNames[0]);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureNames[currentTexture]);
 
             int texCoordHandle = GLES20.glGetAttribLocation(glProgram, "a_texCoord");
             GLES20.glEnableVertexAttribArray(texCoordHandle);

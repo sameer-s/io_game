@@ -12,7 +12,7 @@ import io.github.sunsetsucks.iogame.shape.player.Runner;
  */
 public class InvincibilityPowerup extends Powerup
 {
-    private static final Bitmap texture = Util.loadBitmap("drawable/psyduck");
+    private static final Bitmap texture = Util.loadBitmap("drawable/cookie");
 
     public InvincibilityPowerup()
     {

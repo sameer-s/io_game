@@ -18,6 +18,12 @@ public class Square extends Shape
         super(texture);
     }
 
+    public Square(Bitmap texture, Bitmap texture2)
+    {
+        super(texture, texture2);
+    }
+
+
     @Override
     public float[] getCoords()
     {
