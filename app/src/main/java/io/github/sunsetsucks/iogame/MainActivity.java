@@ -18,7 +18,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -43,8 +42,8 @@ import java.util.List;
 import io.github.sunsetsucks.iogame.network.NetworkConnection;
 import io.github.sunsetsucks.iogame.network.NetworkHandler;
 import io.github.sunsetsucks.iogame.network.ServerListeningThread;
-import io.github.sunsetsucks.iogame.shape.powerup.Powerup;
-import io.github.sunsetsucks.iogame.view.IOGameGLSurfaceView;
+import io.github.sunsetsucks.iogame.rendering.powerup.Powerup;
+import io.github.sunsetsucks.iogame.rendering.IOGameGLSurfaceView;
 
 import static io.github.sunsetsucks.iogame.Util.toast;
 
@@ -313,6 +312,33 @@ public class MainActivity extends AppCompatActivity implements
                 ViewAnimator animator = (ViewAnimator) findViewById(
                         R.id.animator);
                 animator.showNext();
+
+                new CountDownTimer(2 * 60 * 1000, 1000)
+                {
+                    public void onTick(long millisUntilFinished)
+                    {
+                        timer.setText(DateUtils.formatElapsedTime(millisUntilFinished / 1000));
+                    }
+
+                    public void onFinish()
+                    {
+                        Util.alert("Runners win!", "The runners have survived the chaser apocalypse!", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                                finish();
+                            }
+                        }, new DialogInterface.OnDismissListener()
+                        {
+                            @Override
+                            public void onDismiss(DialogInterface dialogInterface)
+                            {
+                                finish();
+                            }
+                        });
+                    }
+                }.start();
             }
         });
 
@@ -336,32 +362,6 @@ public class MainActivity extends AppCompatActivity implements
                 connections.get(i).write(message, true);
             }
         }
-        new CountDownTimer(2 * 60 * 1000, 1000)
-        {
-            public void onTick(long millisUntilFinished)
-            {
-                timer.setText(DateUtils.formatElapsedTime(millisUntilFinished / 1000));
-            }
-
-            public void onFinish()
-            {
-                Util.alert("Runners win!", "The runners have survived the chaser apocalypse!", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i)
-                    {
-                        finish();
-                    }
-                }, new DialogInterface.OnDismissListener()
-                {
-                    @Override
-                    public void onDismiss(DialogInterface dialogInterface)
-                    {
-                        finish();
-                    }
-                });
-            }
-        }.start();
     }
 
     @Override
@@ -525,6 +525,11 @@ public class MainActivity extends AppCompatActivity implements
                 glView.udpUpdate(message);
             }
         });
+
+        if(Util.isHost)
+        {
+            broadcastMessage(message, false);
+        }
     }
 
     @Override

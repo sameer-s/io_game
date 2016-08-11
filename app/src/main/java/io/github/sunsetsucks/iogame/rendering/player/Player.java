@@ -1,4 +1,4 @@
-package io.github.sunsetsucks.iogame.shape.player;
+package io.github.sunsetsucks.iogame.rendering.player;
 
 import android.graphics.Bitmap;
 
@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import io.github.sunsetsucks.iogame.shape.Square;
+import io.github.sunsetsucks.iogame.rendering.Square;
 
 /**
  * Created by Sameer on 2016-08-08.

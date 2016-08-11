@@ -1,4 +1,4 @@
-package io.github.sunsetsucks.iogame.shape;
+package io.github.sunsetsucks.iogame.rendering;
 
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
@@ -9,8 +9,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-
-import io.github.sunsetsucks.iogame.view.IOGameGLSurfaceView;
 
 /**
  * Created by ssuri on 7/25/16.

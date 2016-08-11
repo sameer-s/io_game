@@ -1,4 +1,4 @@
-package io.github.sunsetsucks.iogame.view;
+package io.github.sunsetsucks.iogame.rendering;
 
 import android.app.Activity;
 import android.content.Context;
@@ -13,7 +13,6 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,17 +24,14 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import io.github.sunsetsucks.iogame.Util;
-import io.github.sunsetsucks.iogame.shape.Color;
-import io.github.sunsetsucks.iogame.shape.GameObject;
-import io.github.sunsetsucks.iogame.shape.player.Chaser;
-import io.github.sunsetsucks.iogame.shape.player.Player;
-import io.github.sunsetsucks.iogame.shape.Square;
-import io.github.sunsetsucks.iogame.shape.player.Runner;
-import io.github.sunsetsucks.iogame.shape.powerup.GrowthPowerup;
-import io.github.sunsetsucks.iogame.shape.powerup.InvincibilityPowerup;
-import io.github.sunsetsucks.iogame.shape.powerup.Powerup;
-import io.github.sunsetsucks.iogame.shape.powerup.SpeedDownPowerup;
-import io.github.sunsetsucks.iogame.shape.powerup.SpeedUpPowerup;
+import io.github.sunsetsucks.iogame.rendering.player.Chaser;
+import io.github.sunsetsucks.iogame.rendering.player.Player;
+import io.github.sunsetsucks.iogame.rendering.player.Runner;
+import io.github.sunsetsucks.iogame.rendering.powerup.GrowthPowerup;
+import io.github.sunsetsucks.iogame.rendering.powerup.InvincibilityPowerup;
+import io.github.sunsetsucks.iogame.rendering.powerup.Powerup;
+import io.github.sunsetsucks.iogame.rendering.powerup.SpeedDownPowerup;
+import io.github.sunsetsucks.iogame.rendering.powerup.SpeedUpPowerup;
 
 /**
  * Created by ssuri on 7/25/16.
@@ -107,6 +103,8 @@ public class IOGameGLSurfaceView extends GLSurfaceView
         Player p;
 
         byte compId = Player.compId(bytes);
+
+        if(compId == Util.compId) return;
 
         if (renderer.players.containsKey(compId))
         {
