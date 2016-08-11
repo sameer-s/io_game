@@ -1,4 +1,4 @@
-package io.github.sunsetsucks.iogame.shape;
+package io.github.sunsetsucks.iogame.rendering;
 
 import android.graphics.Bitmap;
 

@@ -1,10 +1,10 @@
-package io.github.sunsetsucks.iogame.shape.powerup;
+package io.github.sunsetsucks.iogame.rendering.powerup;
 
 import android.graphics.Bitmap;
 
 import io.github.sunsetsucks.iogame.Util;
-import io.github.sunsetsucks.iogame.shape.player.Player;
-import io.github.sunsetsucks.iogame.shape.player.Runner;
+import io.github.sunsetsucks.iogame.rendering.player.Player;
+import io.github.sunsetsucks.iogame.rendering.player.Runner;
 
 /**
  * Created by ssuri on 8/9/16.

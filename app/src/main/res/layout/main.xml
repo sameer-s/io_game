@@ -49,7 +49,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <io.github.sunsetsucks.iogame.view.IOGameGLSurfaceView
+        <io.github.sunsetsucks.iogame.rendering.IOGameGLSurfaceView
             android:id="@+id/gl_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>

@@ -1,8 +1,6 @@
-package io.github.sunsetsucks.iogame.shape;
+package io.github.sunsetsucks.iogame.rendering;
 
 import android.opengl.Matrix;
-
-import java.util.HashMap;
 
 
 /**

@@ -18,7 +18,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -43,8 +42,8 @@ import java.util.List;
 import io.github.sunsetsucks.iogame.network.NetworkConnection;
 import io.github.sunsetsucks.iogame.network.NetworkHandler;
 import io.github.sunsetsucks.iogame.network.ServerListeningThread;
-import io.github.sunsetsucks.iogame.shape.powerup.Powerup;
-import io.github.sunsetsucks.iogame.view.IOGameGLSurfaceView;
+import io.github.sunsetsucks.iogame.rendering.powerup.Powerup;
+import io.github.sunsetsucks.iogame.rendering.IOGameGLSurfaceView;
 
 import static io.github.sunsetsucks.iogame.Util.toast;
 
@@ -526,6 +525,11 @@ public class MainActivity extends AppCompatActivity implements
                 glView.udpUpdate(message);
             }
         });
+
+        if(Util.isHost)
+        {
+            broadcastMessage(message, false);
+        }
     }
 
     @Override

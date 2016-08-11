@@ -1,4 +1,4 @@
-package io.github.sunsetsucks.iogame.shape.powerup;
+package io.github.sunsetsucks.iogame.rendering.powerup;
 
 /**
  * Created by ssuri on 8/9/16.
@@ -10,8 +10,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.github.sunsetsucks.iogame.shape.Square;
-import io.github.sunsetsucks.iogame.shape.player.Player;
+import io.github.sunsetsucks.iogame.rendering.Square;
+import io.github.sunsetsucks.iogame.rendering.player.Player;
 
 public abstract class Powerup extends Square
 {
